@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mochi Drop 2D</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="stage">
+  <div class="brand">
+    <h1>🍡 Mochi Drop 2D</h1>
+    <p>drop &middot; merge &middot; grow to the watermelon</p>
+  </div>
+
+  <div class="panel">
+
+    <!-- INTRO -->
+    <div class="screen active" id="scr-intro">
+      <div>
+        <div class="intro-fruits" id="introFruits"></div>
+      </div>
+      <div class="intro-mid">
+        <div class="score-row">
+          <div class="badge"><div class="l">Best</div><div class="v" id="introBest">0</div></div>
+          <div class="badge"><div class="l">Last</div><div class="v" id="introLast">&mdash;</div></div>
+        </div>
+        <div class="how-card">
+          <div class="how-title">How to play</div>
+          <div class="how-item"><div class="how-num">1</div><div class="how-txt">Move to aim, tap to drop a fruit</div></div>
+          <div class="how-item"><div class="how-num">2</div><div class="how-txt">Same fruits touching merge into the next one</div></div>
+          <div class="how-item"><div class="how-num">3</div><div class="how-txt">Don't let the stack cross the pink line</div></div>
+          <div class="how-item"><div class="how-num">4</div><div class="how-txt">Reach the watermelon for max points</div></div>
+        </div>
+      </div>
+      <div class="intro-bot">
+        <button class="btn-play" id="btnPlay">Play</button>
+        <div class="intro-links">
+          <button class="lnk-btn" id="btnGuideHome">🍒 Fruit guide</button>
+          <button class="lnk-btn" id="btnSettingsHome">⚙ Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME -->
+    <div class="screen" id="scr-game">
+      <div class="gtop">
+        <div class="gscore-blk">
+          <div class="glbl">Score</div>
+          <div class="gval" id="scoreVal">0</div>
+          <div class="gbest">Best: <b id="bestValGame">0</b></div>
+        </div>
+        <div class="gbtns">
+          <button class="icn-btn" id="btnGuideGame" title="Fruit guide">🍒</button>
+          <button class="icn-btn" id="btnPause" title="Pause">⏸</button>
+        </div>
+      </div>
+      <div class="nxt-bar">
+        <div class="nxt-lbl">Next</div>
+        <canvas id="nextCanvas" width="96" height="96"></canvas>
+        <div class="nxt-name" id="nextName">&mdash;</div>
+        <div class="drp-tip">tap to drop ✦</div>
+      </div>
+      <div class="game-area">
+        <canvas id="gameCanvas"></canvas>
+        <div id="toastEvo"></div>
+        <div id="toastChain"></div>
+      </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div class="screen" id="scr-pause">
+      <div class="modal-card">
+        <div class="modal-title">Paused</div>
+        <div class="psr">
+          <div class="psi"><div class="psi-l">Score</div><div class="psi-v" id="pauseScore">0</div></div>
+          <div class="psi-div"></div>
+          <div class="psi"><div class="psi-l">Best</div><div class="psi-v" id="pauseBest">0</div></div>
+        </div>
+        <div class="modal-div"></div>
+        <div class="modal-btns">
+          <button class="btn-p" id="btnResume">▶ Resume</button>
+          <button class="btn-s" id="btnPauseGuide">🍒 Fruit guide</button>
+          <button class="btn-s" id="btnPauseSettings">⚙ Settings</button>
+          <button class="btn-d" id="btnQuit">✕ Quit to menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="screen" id="scr-gameover">
+      <div class="modal-card">
+        <div style="font-size:40px;">😿</div>
+        <div class="go-title">Game over</div>
+        <div class="go-sub">The jar overflowed&hellip;</div>
+        <div class="go-score" id="goScore">0</div>
+        <div class="go-newbest" id="goNewBest">🌟 New best</div>
+        <div class="go-stats">
+          <div class="go-stat"><div class="go-stat-l">Merges</div><div class="go-stat-v" id="goMerges">0</div></div>
+          <div class="go-stat"><div class="go-stat-l">Drops</div><div class="go-stat-v" id="goDrops">0</div></div>
+          <div class="go-stat"><div class="go-stat-l">Biggest</div><div class="go-stat-v" id="goBiggest">&mdash;</div></div>
+        </div>
+        <div class="modal-btns">
+          <button class="btn-p" id="btnAgain">↺ Play again</button>
+          <button class="btn-s" id="btnToMenu">☰ Main menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="scr-settings">
+      <div class="modal-card">
+        <div class="stg-title">Settings</div>
+        <div style="width:100%;">
+          <div class="stg-row">
+            <div><div class="stg-l">Sound FX</div><div class="stg-sub">Drop &amp; merge sounds</div></div>
+            <button class="tog on" data-key="sound"></button>
+          </div>
+          <div class="stg-row">
+            <div><div class="stg-l">Screen shake</div><div class="stg-sub">Shake on impact</div></div>
+            <button class="tog on" data-key="shake"></button>
+          </div>
+          <div class="stg-row">
+            <div><div class="stg-l">Particles</div><div class="stg-sub">Merge burst effects</div></div>
+            <button class="tog on" data-key="particles"></button>
+          </div>
+          <div class="stg-row">
+            <div><div class="stg-l">Drop guide</div><div class="stg-sub">Aim line while aiming</div></div>
+            <button class="tog on" data-key="guide"></button>
+          </div>
+        </div>
+        <div class="modal-btns">
+          <button class="btn-p" id="btnSettingsClose">Done ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUIDE -->
+    <div class="screen" id="scr-guide">
+      <div class="guide-title">🍒 Fruit evolution guide</div>
+      <div class="guide-list" id="guideList"></div>
+      <div class="guide-foot"><button class="btn-p" id="btnGuideClose">Got it ♡</button></div>
+    </div>
+
+  </div>
+  <p class="hint">Move to aim &middot; tap or click to drop</p>
+</div>
+
+<!-- Load order matters: each module depends on the ones before it. -->
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/dom.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/input.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

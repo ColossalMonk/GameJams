@@ -1,0 +1,650 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --p1: #ff6ba8;
+  --p2: #ff8dc7;
+  --p3: #ffb3d9;
+  --p4: #ffd6ec;
+  --v1: #c96ee8;
+  --v2: #dda0f0;
+  --dark: #3a2444;
+  --mid: #6b3f7c;
+  --soft: #a87ab8;
+  --pale: #e4cdec;
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass2: rgba(255, 248, 252, 0.92);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: radial-gradient(
+    circle at 18% 8%,
+    #fff8ef 0%,
+    #ffeaf5 42%,
+    #f3e6ff 100%
+  );
+  font-family: "Nunito", sans-serif;
+  color: var(--dark);
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px 30px;
+}
+
+.stage {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.brand h1 {
+  font-family: "Baloo 2", cursive;
+  font-size: 27px;
+  font-weight: 800;
+  color: var(--p1);
+  margin: 0;
+  text-shadow: 0 2px 0 #ffffffaa;
+}
+.brand p {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--soft);
+  letter-spacing: 0.05em;
+  margin: 1px 0 0;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  height: 640px;
+  max-height: 78vh;
+  border-radius: 26px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff3e4, #ffe7f2);
+  border: 3px solid #fff;
+  box-shadow:
+    0 10px 0 #f3c9e2,
+    0 14px 26px rgba(180, 100, 150, 0.25);
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- INTRO ---------- */
+#scr-intro {
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 18px 18px;
+  text-align: center;
+}
+.intro-fruits {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.intro-fruits .mini {
+  border-radius: 50%;
+}
+.intro-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.score-row {
+  display: flex;
+  gap: 10px;
+}
+.badge {
+  background: var(--glass);
+  border: 1.5px solid #ffffffdd;
+  border-radius: 12px;
+  padding: 7px 18px;
+  text-align: center;
+  min-width: 66px;
+}
+.badge .l {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.badge .v {
+  font-family: "Baloo 2", cursive;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.how-card {
+  background: var(--glass2);
+  border: 1.5px solid #ffffffee;
+  border-radius: 18px;
+  padding: 14px 18px;
+  max-width: 320px;
+  width: 100%;
+}
+.how-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 14px;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+.how-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  margin-bottom: 6px;
+}
+.how-item:last-child {
+  margin-bottom: 0;
+}
+.how-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--p1), var(--v1));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.how-txt {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--mid);
+}
+.intro-bot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.btn-play {
+  background: linear-gradient(135deg, var(--p1), var(--v1));
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 54px;
+  font-family: "Baloo 2", cursive;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(180, 60, 120, 0.38);
+  position: relative;
+  overflow: hidden;
+}
+.btn-play:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(180, 60, 120, 0.38);
+}
+.intro-links {
+  display: flex;
+  gap: 8px;
+}
+.lnk-btn {
+  background: var(--glass);
+  color: var(--mid);
+  border: 1.5px solid var(--pale);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: "Baloo 2", cursive;
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.lnk-btn:active {
+  transform: scale(0.95);
+}
+
+/* ---------- GAME ---------- */
+#scr-game {
+  padding: 0;
+}
+.gtop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 4px;
+  flex-shrink: 0;
+}
+.gscore-blk {
+  flex: 1;
+}
+.glbl {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.gval {
+  font-family: "Baloo 2", cursive;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.05;
+}
+.gbest {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--soft);
+}
+.gbest b {
+  color: var(--mid);
+}
+.gbtns {
+  display: flex;
+  gap: 6px;
+}
+.icn-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: var(--glass);
+  color: var(--mid);
+}
+.icn-btn:active {
+  transform: scale(0.88);
+}
+.nxt-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 14px 8px;
+  flex-shrink: 0;
+}
+.nxt-lbl {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--soft);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+#nextCanvas {
+  width: 34px;
+  height: 34px;
+}
+.nxt-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mid);
+}
+.drp-tip {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--pale);
+  font-weight: 700;
+}
+.game-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+#toastEvo,
+#toastChain {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  transform: translate(-50%, -50%) scale(0.6);
+  font-family: "Baloo 2", cursive;
+  background: var(--glass2);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  color: var(--mid);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 5;
+}
+#toastChain {
+  top: 14%;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--v1);
+}
+#toastEvo.show,
+#toastChain.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ---------- MODALS ---------- */
+.modal-card {
+  background: var(--glass2);
+  border-radius: 22px;
+  border: 2px solid #fff;
+  box-shadow: 0 12px 34px rgba(200, 80, 160, 0.22);
+  padding: 24px 22px;
+  width: calc(100% - 44px);
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.modal-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--p1);
+}
+.modal-div {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pale), transparent);
+}
+.modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+}
+.btn-p,
+.btn-s,
+.btn-d {
+  border: none;
+  border-radius: 999px;
+  padding: 12px;
+  font-family: "Baloo 2", cursive;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+.btn-p {
+  background: linear-gradient(135deg, var(--p1), var(--v1));
+  color: #fff;
+  box-shadow: 0 4px 0 rgba(180, 60, 120, 0.32);
+}
+.btn-p:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(180, 60, 120, 0.32);
+}
+.btn-s {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--mid);
+  border: 1.5px solid var(--pale);
+}
+.btn-s:active {
+  transform: scale(0.97);
+}
+.btn-d {
+  background: rgba(255, 255, 255, 0.4);
+  color: #e04b5a;
+  border: 1.5px solid rgba(255, 100, 100, 0.3);
+}
+.btn-d:active {
+  transform: scale(0.97);
+}
+
+#scr-pause,
+#scr-gameover,
+#scr-settings,
+#scr-guide {
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 232, 246, 0.72);
+}
+
+.psr {
+  display: flex;
+  gap: 18px;
+}
+.psi {
+  text-align: center;
+}
+.psi-l {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.psi-v {
+  font-family: "Baloo 2", cursive;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.psi-div {
+  width: 1px;
+  background: var(--pale);
+  align-self: stretch;
+}
+
+.go-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--p1);
+}
+.go-sub {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--soft);
+  margin-top: -8px;
+}
+.go-score {
+  font-family: "Baloo 2", cursive;
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1;
+}
+.go-newbest {
+  background: linear-gradient(135deg, #ffd166, #ffa832);
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: none;
+}
+.go-stats {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+.go-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  padding: 7px 4px;
+  text-align: center;
+  border: 1px solid #ffffffcc;
+}
+.go-stat-l {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: var(--soft);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.go-stat-v {
+  font-family: "Baloo 2", cursive;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--mid);
+}
+
+.stg-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mid);
+}
+.stg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(212, 184, 224, 0.35);
+  width: 100%;
+}
+.stg-row:last-child {
+  border-bottom: none;
+}
+.stg-l {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--mid);
+}
+.stg-sub {
+  font-size: 9.5px;
+  color: var(--soft);
+  font-weight: 600;
+}
+.tog {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+.tog.on {
+  background: linear-gradient(135deg, var(--p1), var(--v1));
+}
+.tog.off {
+  background: var(--pale);
+}
+.tog::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  transition: left 0.18s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.tog.on::after {
+  left: 21px;
+}
+.tog.off::after {
+  left: 3px;
+}
+
+#scr-guide {
+  overflow-y: auto;
+  align-items: center;
+}
+.guide-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mid);
+  margin: 16px 0 10px;
+}
+.guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: calc(100% - 32px);
+  max-width: 320px;
+}
+.guide-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--glass2);
+  border: 1.5px solid #fff;
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+.guide-ball {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.guide-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.guide-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--dark);
+}
+.guide-pts {
+  font-size: 10px;
+  color: var(--soft);
+  font-weight: 700;
+}
+.guide-arr {
+  font-size: 12px;
+  color: var(--pale);
+  flex-shrink: 0;
+}
+.guide-foot {
+  width: calc(100% - 32px);
+  max-width: 320px;
+  padding: 12px 0 18px;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: #a077a8;
+  font-weight: 700;
+  text-align: center;
+}

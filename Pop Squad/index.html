@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Pop Squad</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="topbar">
+  <h1><span id="titleIcon">🫧</span> Pop Squad</h1>
+  <div id="stats">
+    <div class="stat">Score<br><span id="scoreVal">0</span></div>
+    <div class="stat" id="timeStat">Time<br><span id="timeVal">90</span></div>
+    <div class="stat statHideNarrow">Best chain<br><span id="bestChainVal">0</span></div>
+    <button class="iconBtn" id="pauseBtn">⚙︎</button>
+  </div>
+</div>
+
+<div id="stage">
+  <canvas id="world"></canvas>
+  <div id="floatScores"></div>
+
+  <div class="overlay" id="menuOverlay">
+    <div class="card">
+      <span class="mascot">🐙</span>
+      <h2>Pop Squad</h2>
+      <p>Tap a critter to pop it! Same-colored friends nearby — even diagonally — chain right along. Watch for sparkly power-up critters, and chase the biggest cascade before the grid fills up or time runs out.</p>
+      <button class="bigBtn" id="playBtn">▶ Play</button><br>
+      <button class="bigBtn secondary" id="howtoBtn">❓ How to Play</button><br>
+      <button class="bigBtn tertiary" id="settingsBtn">⚙︎ Settings</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="howtoOverlay">
+    <div class="card">
+      <span class="mascot">🐸</span>
+      <h2>How to Play</h2>
+      <p>
+        🟡 Tap any critter to pop it.<br><br>
+        🔗 Same-colored critters touching it — including diagonally — pop too, and so on down the chain.<br><br>
+        📏 Bigger critters are worth more points, and any size can chain into any other size, as long as the color matches.<br><br>
+        ✨ <b>Rainbow</b> critters pop every neighbor no matter the color.<br>
+        💣 <b>Bomb</b> critters clear everything around them.<br>
+        ⭐ <b>Star</b> critters give bonus points and a few extra seconds.<br><br>
+        ⏳ New critters keep spawning. If the grid fills up completely, it's game over — so keep popping!
+      </p>
+      <button class="bigBtn" id="howtoBackBtn">Got it!</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="settingsOverlay">
+    <div class="card">
+      <span class="mascot">🦊</span>
+      <h2>Settings</h2>
+      <div class="settingsRow">
+        <label>Sound</label>
+        <div class="switch on" id="soundSwitch"><div class="knob"></div></div>
+      </div>
+      <div class="settingsRow">
+        <label>Music volume</label>
+        <input type="range" id="musicSlider" min="0" max="100" value="50">
+      </div>
+      <div class="settingsRow">
+        <label>Sound effects</label>
+        <input type="range" id="sfxSlider" min="0" max="100" value="80">
+      </div>
+      <div class="settingsRow" style="flex-direction:column;align-items:stretch;gap:6px;">
+        <label>Difficulty</label>
+        <div class="diffRow">
+          <div class="diffBtn" data-diff="easy">Easy</div>
+          <div class="diffBtn active" data-diff="normal">Normal</div>
+          <div class="diffBtn" data-diff="hard">Hard</div>
+        </div>
+      </div>
+      <button class="bigBtn" id="settingsBackBtn" style="margin-top:10px;">Back</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="resultOverlay">
+    <div class="card">
+      <span class="mascot" id="resultMascot">🎉</span>
+      <h2 id="resultTitle">Time's Up!</h2>
+      <span id="bigScore">0</span>
+      <div id="resultSub">Best chain: 0</div>
+      <button class="bigBtn" id="playAgainBtn">↺ Play Again</button><br>
+      <button class="bigBtn tertiary" id="menuBackBtn">🏠 Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

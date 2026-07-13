@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Mochi Drop ✿</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- LOADING -->
+  <div class="screen" id="scr-load">
+    <div class="ld-logo">Mochi Drop</div>
+    <div class="ld-sub">✿ kawaii merge ✿</div>
+    <div class="ld-bar-wrap"><div class="ld-bar" id="ld-bar"></div></div>
+    <div class="ld-tip" id="ld-tip">Waking up the fruits...</div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen" id="scr-intro">
+    <div class="intro-top">
+      <div class="logo-main">Mochi Drop</div>
+      <div class="logo-sub">✿ kawaii merge ✿</div>
+      <div class="ifrow" id="ifrow"></div>
+    </div>
+    <div class="intro-mid">
+      <div class="score-row">
+        <div class="sc-badge"><div class="sc-badge-l">Best</div><div class="sc-badge-v" id="i-best">0</div></div>
+        <div class="sc-badge"><div class="sc-badge-l">Last</div><div class="sc-badge-v" id="i-last">—</div></div>
+      </div>
+      <div class="how-card">
+        <div class="how-title">How to Play</div>
+        <div class="how-list">
+          <div class="how-item"><div class="how-num">1</div><div class="how-txt">Tap to drop a fruit into the jar</div></div>
+          <div class="how-item"><div class="how-num">2</div><div class="how-txt">Same fruits touch → merge into bigger one!</div></div>
+          <div class="how-item"><div class="how-num">3</div><div class="how-txt">Don't let fruits overflow the danger line</div></div>
+          <div class="how-item"><div class="how-num">4</div><div class="how-txt">Reach Watermelon 🍉 for maximum points!</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="intro-bot">
+      <button class="btn-play" id="btn-play">Play ♡</button>
+      <div class="intro-links">
+        <button class="lnk-btn" id="btn-guide-home">🍒 Fruit Guide</button>
+        <button class="lnk-btn" id="btn-settings-home">⚙ Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="scr-game">
+    <div class="gtop">
+      <div class="gscore-blk">
+        <div class="glbl">Score</div>
+        <div class="gval" id="g-score">0</div>
+        <div class="gbest">Best: <span id="g-best">0</span></div>
+      </div>
+      <div class="gbtns">
+        <button class="icn-btn" id="btn-guide-game" title="Fruit Guide">🍒</button>
+        <button class="icn-btn" id="btn-pause" title="Pause">⏸</button>
+      </div>
+    </div>
+    <div class="nxt-bar">
+      <div class="nxt-lbl">Next →</div>
+      <div class="nxt-ball" id="nxt-ball" style="background:#FF336622;border-color:#FF336688;">🍒</div>
+      <div class="nxt-name" id="nxt-name">Cherry</div>
+      <div class="drp-tip">tap to drop ✦</div>
+    </div>
+    <div id="pu-bar">
+      <button class="pu-btn" id="pu-bomb" onclick="usePU('bomb')"><span class="pu-icon">💣</span><span class="pu-cnt" id="cnt-bomb">2</span><span class="pu-name">Bomb</span></button>
+      <button class="pu-btn" id="pu-boost" onclick="usePU('boost')"><span class="pu-icon">⬆️</span><span class="pu-cnt" id="cnt-boost">3</span><span class="pu-name">Boost</span></button>
+      <button class="pu-btn" id="pu-squash" onclick="usePU('squash')"><span class="pu-icon">⬇️</span><span class="pu-cnt" id="cnt-squash">2</span><span class="pu-name">Squash</span></button>
+      <button class="pu-btn" id="pu-shake" onclick="usePU('shake')"><span class="pu-icon">🔀</span><span class="pu-cnt" id="cnt-shake">2</span><span class="pu-name">Shake</span></button>
+      <button class="pu-btn" id="pu-lucky" onclick="usePU('lucky')"><span class="pu-icon">🌟</span><span class="pu-cnt" id="cnt-lucky">1</span><span class="pu-name">Lucky</span></button>
+    </div>
+    <div class="game-area" id="game-area">
+      <div class="dband"></div>
+      <div class="dlbl">✦ overflow line ✦</div>
+      <canvas id="gc"></canvas>
+      <div id="drop-line"></div>
+      <div id="drop-ghost"></div>
+      <div id="fx"></div>
+      <div id="bloom"></div>
+      <div id="evo-toast"></div>
+      <div id="chain-toast"></div>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <div class="screen" id="scr-pause">
+    <div class="modal-card">
+      <div class="modal-title">Paused ⏸</div>
+      <div class="psr">
+        <div class="psi"><div class="psi-l">Score</div><div class="psi-v" id="p-score">0</div></div>
+        <div style="width:1px;background:var(--pale);align-self:stretch;"></div>
+        <div class="psi"><div class="psi-l">Best</div><div class="psi-v" id="p-best">0</div></div>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-btns">
+        <button class="btn-p" id="btn-resume">▶ Resume</button>
+        <button class="btn-s" id="btn-pause-guide">🍒 Fruit Guide</button>
+        <button class="btn-s" id="btn-pause-settings">⚙ Settings</button>
+        <button class="btn-d" id="btn-quit">✕ Quit to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="screen" id="scr-gameover">
+    <div class="modal-card">
+      <div class="go-emoji" id="go-emoji">😿</div>
+      <div class="go-title">Game Over!</div>
+      <div class="go-sub">The jar overflowed...</div>
+      <div class="go-score" id="go-score">0</div>
+      <div class="go-newbest" id="go-newbest">🌟 New Best!</div>
+      <div class="go-stats">
+        <div class="go-stat"><div class="go-stat-l">Merges</div><div class="go-stat-v" id="go-merges">0</div></div>
+        <div class="go-stat"><div class="go-stat-l">Biggest</div><div class="go-stat-v" id="go-big-e">—</div></div>
+        <div class="go-stat"><div class="go-stat-l">Drops</div><div class="go-stat-v" id="go-drops">0</div></div>
+      </div>
+      <div class="go-fruit-row">
+        <div class="go-fruit-l">Best fruit reached:</div>
+        <div class="go-fruit-v" id="go-big-name">🍒 Cherry</div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-p" id="btn-again">↺ Play Again</button>
+        <button class="btn-s" id="btn-to-menu">☰ Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen" id="scr-settings">
+    <div class="modal-card">
+      <div class="stg-title">Settings ⚙</div>
+      <div class="stg-rows">
+        <div class="stg-row">
+          <div><div class="stg-row-l">Sound FX</div><div class="stg-row-sub">Merge &amp; drop sounds</div></div>
+          <button class="tog on" data-key="sound"></button>
+        </div>
+        <div class="stg-row">
+          <div><div class="stg-row-l">Screen Shake</div><div class="stg-row-sub">Camera shake on impact</div></div>
+          <button class="tog on" data-key="shake"></button>
+        </div>
+        <div class="stg-row">
+          <div><div class="stg-row-l">Particles</div><div class="stg-row-sub">Merge burst effects</div></div>
+          <button class="tog on" data-key="particles"></button>
+        </div>
+        <div class="stg-row">
+          <div><div class="stg-row-l">Drop Guide</div><div class="stg-row-sub">Show aim line while aiming</div></div>
+          <button class="tog on" data-key="guide"></button>
+        </div>
+      </div>
+      <button class="btn-p" id="btn-stg-close">Done ✓</button>
+    </div>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="screen" id="scr-guide">
+    <div class="guide-title">🍒 Fruit Evolution Guide</div>
+    <div class="guide-list" id="guide-list"></div>
+    <div class="guide-foot"><button class="btn-p" id="btn-guide-close">Got it! ♡</button></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="script.js"></script>
+</body>
+</html>
