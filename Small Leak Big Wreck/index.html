@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Small Leak, Big Wreck</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <div id="ui-root">
+    <div id="main-menu-overlay" class="hidden">
+      <div id="main-menu-title">SMALL LEAK, BIG WRECK</div>
+      <div id="main-menu-sub">Small Problem. Big Chaos.</div>
+      <div class="menu-buttons">
+        <button id="btn-play" class="menu-btn">Play</button>
+        <button id="btn-settings-main" class="menu-btn">Settings</button>
+      </div>
+    </div>
+
+    <div id="pause-overlay" class="hidden">
+      <div id="pause-title">PAUSED</div>
+      <div class="menu-buttons">
+        <button id="btn-resume" class="menu-btn">Resume</button>
+        <button id="btn-restart" class="menu-btn">Restart Level</button>
+        <button id="btn-settings-pause" class="menu-btn">Settings</button>
+        <button id="btn-quit" class="menu-btn">Quit to Main Menu</button>
+      </div>
+    </div>
+
+    <div id="settings-overlay" class="hidden">
+      <div id="settings-title">SETTINGS</div>
+      <div class="settings-row">
+        <label for="vol-master">Master</label>
+        <input type="range" id="vol-master" min="0" max="1" step="0.01">
+      </div>
+      <div class="settings-row">
+        <label for="vol-music">Music</label>
+        <input type="range" id="vol-music" min="0" max="1" step="0.01">
+      </div>
+      <div class="settings-row">
+        <label for="vol-sfx">SFX</label>
+        <input type="range" id="vol-sfx" min="0" max="1" step="0.01">
+      </div>
+      <button id="btn-settings-back" class="menu-btn">Back</button>
+    </div>
+
+    <div id="howto-overlay" class="hidden">
+      <div id="howto-title">SMALL LEAK, BIG WRECK</div>
+      <div id="howto-sub">Small Problem. Big Chaos.</div>
+
+      <div id="howto-controls">
+        <div class="key-row">
+          <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span>
+          <span class="key-label">Move</span>
+        </div>
+        <div class="key-row">
+          <span class="kbd wide">E</span>
+          <span class="key-label">Hold to mop up water</span>
+        </div>
+        <div class="key-row">
+          <span class="kbd wide">SPACE</span>
+          <span class="key-label">Advance story screens</span>
+        </div>
+      </div>
+
+      <div id="howto-goal">
+        Tonight the building is already a disaster, and you're the janitor called in
+        to deal with it. Every level after this one takes you further back through
+        the night, room by room &mdash; until the very last one shows you how it
+        actually started.
+        <br><br>
+        Each room starts mid-crisis. Mop up water before it reaches outlets (fire),
+        flammable tiles (fire spreads faster), or critical tiles (instant disaster).
+        Let enough fire burn and the sprinklers trigger on their own &mdash; and make
+        everything worse.
+        <br><br>
+        Get the DANGER meter under the white line before time runs out to stabilize
+        the room and move on. Don't, and you're right back in the same mess to try
+        again.
+      </div>
+
+      <div id="howto-legend"></div>
+
+      <div id="story-prompt3">Press SPACE to begin</div>
+    </div>
+
+    <div id="timeskip-overlay" class="hidden">
+      <div id="timeskip-text"></div>
+    </div>
+
+    <div id="hud" class="hidden">
+      <div id="level-label">Level 10: The Big Chaos</div>
+
+      <div class="meter-row">
+        <span class="meter-tag">TIME</span>
+        <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+      </div>
+
+      <div class="meter-row">
+        <span class="meter-tag">DANGER</span>
+        <div id="danger-bar-wrap">
+          <div id="danger-bar"></div>
+          <div id="danger-threshold-mark"></div>
+        </div>
+      </div>
+      <div id="danger-label"></div>
+
+      <div id="mop-hint">WASD move · Hold E to mop up water · Keep DANGER under the line · ESC to pause</div>
+      <div id="fail-banner" class="hidden">CRITICAL SYSTEM LOST</div>
+      <div id="hud-legend"></div>
+    </div>
+
+    <div id="story-overlay" class="hidden">
+      <div id="story-title"></div>
+      <div id="story-text"></div>
+      <div id="story-controls">Controls: WASD to move · Hold E to mop water</div>
+      <div id="story-prompt">Press SPACE to continue</div>
+    </div>
+
+    <div id="score-overlay" class="hidden">
+      <div id="score-title"></div>
+      <div id="score-breakdown"></div>
+      <div id="story-prompt2">Press SPACE to continue</div>
+    </div>
+
+    <div id="final-overlay" class="hidden">
+      <div id="final-title">TOTAL DAMAGE REPORT</div>
+      <div id="final-score"></div>
+      <div id="final-tagline"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
