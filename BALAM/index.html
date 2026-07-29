@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BALAM</title>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #0D0820; }
+    #app { position: relative; width: 100vw; height: 100vh; }
+    canvas { display: block; }
+
+    #hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eee;
+      user-select: none;
+    }
+
+    #layer-indicator {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      background: rgba(90, 122, 58, 0.25);
+      border: 1px solid #8ABF6A;
+      color: #8ABF6A;
+      transition: background 0.4s, border-color 0.4s, color 0.4s;
+    }
+    #layer-indicator.spirit {
+      background: rgba(123, 94, 167, 0.25);
+      border-color: #C4A8FF;
+      color: #C4A8FF;
+    }
+
+    #minimap {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4);
+    }
+
+    #zone-timer {
+      position: absolute;
+      top: 142px;
+      right: 16px;
+      width: 120px;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      padding: 4px 0;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ddd;
+    }
+    #zone-timer.low { color: #ff8c69; border-color: rgba(255,140,105,0.5); }
+
+    #trust-wrap {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      text-align: center;
+    }
+    #trust-bar-bg {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+    #trust-bar-fill {
+      height: 100%;
+      width: 50%;
+      border-radius: 4px;
+      background: linear-gradient(to right, #7B5EA7, #C4A8FF 40%, #F5D76E 70%, #FFB830);
+      transition: width 0.3s ease;
+    }
+    #trust-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .portrait {
+      position: absolute;
+      bottom: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    #portrait-explorer { left: 24px; background: #C4A882; }
+    #portrait-jaguar { right: 24px; background: #7B5EA7; }
+    .portrait.active { border-color: #F5D76E; box-shadow: 0 0 10px #F5D76E; }
+
+    #fragment-popup {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(20, 14, 4, 0);
+      opacity: 0;
+      transition: opacity 0.6s;
+      pointer-events: none;
+    }
+    #fragment-popup.show {
+      opacity: 1;
+      background: rgba(20, 14, 4, 0.55);
+    }
+    #fragment-popup span {
+      font-size: 22px;
+      color: #F5D76E;
+      letter-spacing: 0.05em;
+    }
+
+    #message-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: #fff;
+      background: rgba(0,0,0,0.6);
+      padding: 14px 24px;
+      border-radius: 10px;
+      opacity: 0;
+      transition: opacity 0.6s;
+      text-align: center;
+      min-width: 240px;
+    }
+    #message-banner.show { opacity: 1; }
+
+    #interact-prompt {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      font-size: 17px;
+      letter-spacing: 0.05em;
+      color: #F5D76E;
+      background: rgba(0,0,0,0.65);
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: 1px solid rgba(245,215,110,0.5);
+      box-shadow: 0 0 18px rgba(245,215,110,0.15);
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    #interact-prompt.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    #zone-hint {
+      position: absolute;
+      top: 54px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-style: italic;
+      letter-spacing: 0.03em;
+      color: #b8c9a0;
+      opacity: 0;
+      transition: opacity 0.8s;
+      text-align: center;
+      max-width: 380px;
+    }
+    #zone-hint.show { opacity: 1; }
+
+    #objectives-btn {
+      position: absolute;
+      top: 54px;
+      left: 16px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #ddd;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    #objectives-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    #hud-settings-btn {
+      position: absolute;
+      top: 54px;
+      left: 114px;
+      font-size: 13px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #ddd;
+      cursor: pointer;
+      pointer-events: auto;
+      line-height: 1;
+    }
+    #hud-settings-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    #progress-counter {
+      position: absolute;
+      top: 180px;
+      right: 16px;
+      width: 120px;
+      font-size: 10.5px;
+      letter-spacing: 0.02em;
+      padding: 6px 4px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ddd;
+      text-align: center;
+      display: none;
+      line-height: 1.5;
+    }
+    #progress-counter.show { display: block; }
+
+    #objectives-panel {
+      position: absolute;
+      top: 90px;
+      left: 16px;
+      width: 280px;
+      max-width: 75vw;
+      background: rgba(10,8,20,0.88);
+      border: 1px solid rgba(245,215,110,0.35);
+      border-radius: 10px;
+      padding: 14px 16px;
+      pointer-events: auto;
+    }
+    #objectives-panel.hidden { display: none; }
+    #objectives-panel h3 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: #F5D76E;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    #objectives-list {
+      margin: 0 0 10px;
+      padding-left: 18px;
+      font-size: 12px;
+      color: #ddd;
+      line-height: 1.7;
+    }
+    #objectives-close {
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      padding: 5px 14px;
+      border-radius: 6px;
+      background: #7B5EA7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #objectives-close:hover { background: #9B7FD4; }
+
+    #menu-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1a1030 0%, #0D0820 70%);
+      pointer-events: auto;
+      z-index: 10;
+    }
+    #menu-overlay h1 {
+      font-size: 48px;
+      letter-spacing: 0.15em;
+      color: #F5D76E;
+      margin: 0;
+      font-weight: 500;
+    }
+    #menu-overlay p.sub {
+      color: #C4A8FF;
+      font-style: italic;
+      margin: 12px 0 32px;
+      font-size: 15px;
+    }
+    #menu-overlay button {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      padding: 12px 32px;
+      border-radius: 8px;
+      background: #7B5EA7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #menu-overlay button:hover { background: #9B7FD4; }
+    #menu-overlay .controls-hint {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 0.05em;
+      text-align: center;
+      line-height: 1.8;
+    }
+    #menu-overlay.hidden { display: none; }
+
+    #ending-text {
+      position: absolute;
+      bottom: 18%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 1.2s;
+      text-align: center;
+      min-width: 300px;
+      letter-spacing: 0.03em;
+    }
+    #ending-text.show { opacity: 1; }
+
+    #fade-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #menu-overlay input {
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #7B5EA7;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      margin-bottom: 18px;
+      width: 220px;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+    #menu-overlay input::placeholder { color: #888; }
+
+    .overlay-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1a1030 0%, #0D0820 70%);
+      pointer-events: auto;
+      z-index: 10;
+      text-align: center;
+      padding: 0 24px;
+    }
+    .overlay-screen.hidden { display: none; }
+
+    #story-text {
+      font-size: 19px;
+      color: #e8d9ff;
+      max-width: 560px;
+      min-height: 120px;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #story-skip {
+      margin-top: 30px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: #888;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #story-skip:hover { color: #ccc; border-color: rgba(255,255,255,0.4); }
+
+    #credits-screen h1 {
+      font-size: 34px;
+      letter-spacing: 0.14em;
+      color: #F5D76E;
+      margin: 0 0 6px;
+      font-weight: 500;
+    }
+    #credits-line {
+      color: #C4A8FF;
+      font-style: italic;
+      margin: 4px 0 26px;
+      font-size: 15px;
+    }
+    #credits-stats {
+      font-size: 13px;
+      color: #b8c9a0;
+      line-height: 2;
+      margin-bottom: 24px;
+      letter-spacing: 0.03em;
+    }
+    #credits-thanks {
+      font-size: 14px;
+      color: #eee;
+      margin-bottom: 30px;
+      max-width: 420px;
+      font-style: italic;
+    }
+    #credits-screen button {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      padding: 12px 32px;
+      border-radius: 8px;
+      background: #7B5EA7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #credits-screen button:hover { background: #9B7FD4; }
+
+    #settings-screen h2, #pause-screen h2 {
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      color: #F5D76E;
+      margin: 0 0 20px;
+      font-weight: 500;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 320px;
+      margin: 7px 0;
+      font-size: 13px;
+      color: #ddd;
+      gap: 16px;
+    }
+    .settings-row label { flex: 1; text-align: left; }
+    .settings-row input[type="range"] { flex: 1.2; accent-color: #7B5EA7; }
+    .settings-row select {
+      background: #1a1030;
+      color: #fff;
+      border: 1px solid #7B5EA7;
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+    .settings-note {
+      font-size: 10px;
+      color: #888;
+      margin: 10px 0 4px;
+      width: 320px;
+      text-align: left;
+    }
+    #pause-screen button, #settings-screen button.action {
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      padding: 10px 26px;
+      border-radius: 8px;
+      background: #7B5EA7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 6px 0;
+      width: 220px;
+    }
+    #pause-screen button:hover, #settings-screen button.action:hover { background: #9B7FD4; }
+    #menu-settings-btn {
+      margin-top: 14px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #ccc;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #menu-settings-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="hud">
+      <div id="layer-indicator">PHYSICAL</div>
+      <button id="objectives-btn">Objectives</button>
+      <button id="hud-settings-btn" title="Settings">⚙</button>
+      <div id="objectives-panel" class="hidden">
+        <h3>Objectives</h3>
+        <ul id="objectives-list"></ul>
+        <button id="objectives-close">Close</button>
+      </div>
+      <div id="progress-counter"></div>
+      <canvas id="minimap"></canvas>
+      <div id="zone-timer">--:--</div>
+      <div id="trust-wrap">
+        <div id="trust-bar-bg"><div id="trust-bar-fill"></div></div>
+        <div id="trust-label">TRUST</div>
+      </div>
+      <div id="portrait-explorer" class="portrait active"></div>
+      <div id="portrait-jaguar" class="portrait"></div>
+      <div id="fragment-popup"><span>A fragment of the map reveals itself...</span></div>
+      <div id="message-banner"></div>
+      <div id="zone-hint"></div>
+      <div id="interact-prompt"></div>
+      <div id="ending-text"></div>
+      <div id="fade-overlay"></div>
+    </div>
+    <div id="menu-overlay">
+      <h1>BALAM</h1>
+      <p class="sub">"Two worlds. One path. Neither alone."</p>
+      <input id="player-name" type="text" placeholder="Your name (for the stone)" maxlength="18" />
+      <button id="start-btn">Begin</button>
+      <div class="controls-hint">
+        WASD / Arrows — move Explorer &nbsp;·&nbsp; Shift + move — pull a block &nbsp;·&nbsp; Click / Right-click — move &amp; interact as Jaguar &nbsp;·&nbsp; Tab / Space — switch &nbsp;·&nbsp; E — interact &nbsp;·&nbsp; Scroll — zoom &nbsp;·&nbsp; Esc — pause
+      </div>
+      <button id="menu-settings-btn">Settings</button>
+    </div>
+    <div id="story-screen" class="overlay-screen hidden">
+      <div id="story-text"></div>
+      <button id="story-skip">Skip ▸</button>
+    </div>
+    <div id="credits-screen" class="overlay-screen hidden">
+      <h1>BALAM</h1>
+      <p id="credits-line">"Two worlds. One path. Neither alone."</p>
+      <div id="credits-stats"></div>
+      <div id="credits-thanks"></div>
+      <button id="credits-restart">Play Again</button>
+    </div>
+    <div id="pause-screen" class="overlay-screen hidden">
+      <h2>Paused</h2>
+      <button id="pause-resume">Resume</button>
+      <button id="pause-restart">Restart Zone</button>
+      <button id="pause-settings">Settings</button>
+      <button id="pause-title">Return to Title</button>
+    </div>
+    <div id="settings-screen" class="overlay-screen hidden">
+      <h2>Settings</h2>
+      <div class="settings-row"><label for="vol-master">Master Volume</label><input type="range" id="vol-master" min="0" max="100" /></div>
+      <div class="settings-row"><label for="vol-music">Music</label><input type="range" id="vol-music" min="0" max="100" /></div>
+      <div class="settings-row"><label for="vol-sfx">SFX</label><input type="range" id="vol-sfx" min="0" max="100" /></div>
+      <div class="settings-row"><label for="chk-shadows">Shadows</label><input type="checkbox" id="chk-shadows" /></div>
+      <div class="settings-row"><label for="chk-bloom">Bloom glow</label><input type="checkbox" id="chk-bloom" /></div>
+      <div class="settings-row">
+        <label for="sel-particles">Particle density</label>
+        <select id="sel-particles"><option value="high">High</option><option value="low">Low</option></select>
+      </div>
+      <div class="settings-row"><label for="chk-aa">Antialiasing</label><input type="checkbox" id="chk-aa" /></div>
+      <p class="settings-note">Particle density and antialiasing changes apply on the next zone load / reload.</p>
+      <button class="action" id="settings-close">Back</button>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

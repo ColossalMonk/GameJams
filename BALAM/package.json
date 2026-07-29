@@ -1,0 +1,19 @@
+{
+  "name": "balam",
+  "version": "1.0.0",
+  "description": "BALAM — One Game a Month #61 — Two worlds. One path. Neither alone.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.169.0",
+    "postprocessing": "^6.35.0",
+    "tone": "^15.0.4"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  }
+}
