@@ -1,14 +1,15 @@
-import { parseLayout, TILE } from '../TileGrid.js';
+import { parseLayout, randomOpenTile, TILE } from '../TileGrid.js';
 import { CanopyGate } from '../../mechanics/gates/CanopyGate.js';
 import { AncientDoor } from '../../mechanics/gates/AncientDoor.js';
 import { MapFragmentManager } from '../../mechanics/MapFragment.js';
 
 // 20x20 — The Understory. Mixed, cooperation-focused zone.
+// Fragments aren't baked into the layout — createRules() scatters them fresh every load.
 const ROWS = [
   'T T T T T T T T T G G T T T T T T T T T',
   'T . . . . . . . . . . . . . . . . . . T',
   'T . R . . . . . . . . . . . . . . R . T',
-  'T . . . . . . . . . M . . . . . . . . T',
+  'T . . . . . . . . . . . . . . . . . . T',
   'T V V V V V V V V V V V V V V V V V V T',
   'T V V V V V V V V V V V V V V V V V V T',
   'T . . . . . . . . . . . . . . . . . . T',
@@ -22,7 +23,7 @@ const ROWS = [
   'T . . . . . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . . . . . T',
   'T . R . . . . . . . . . . . . . . R . T',
-  'T . . . . . . . . M . . . . . . . . . T',
+  'T . . . . . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . . . . . T',
 ];
@@ -42,7 +43,7 @@ export const zone2 = {
     explorer: { col: 9, row: 18 },
     jaguar: { col: 10, row: 18 },
   },
-  fragments: [{ col: 10, row: 3 }, { col: 9, row: 17 }],
+  fragmentCount: 2,
   exitGate: { cols: [9, 10], row: 0, toZone: 'zone3' },
   entryRequirement: null,
   introHint: 'The vines block the way north — the jaguar can wilt them in spirit form. Four runes wait in the corners, and two fragments in the understory. The door needs trust as well as ritual.',
@@ -55,8 +56,17 @@ export const zone2 = {
   ],
 
   createRules(ctx) {
+    const spawnTiles = [[ctx.explorer.col, ctx.explorer.row], [ctx.jaguar.col, ctx.jaguar.row]];
+    const fragmentSpots = [];
+    for (let i = 0; i < zone2.fragmentCount; i++) {
+      const spot = randomOpenTile(ctx.grid, { exclude: [...spawnTiles, ...fragmentSpots] });
+      ctx.grid.set(spot[0], spot[1], TILE.PICKUP_MAP);
+      ctx.renderer.placeFragment(spot[0], spot[1]);
+      fragmentSpots.push(spot);
+    }
+
     const canopy = new CanopyGate(VINE_TILES);
-    const fragments = new MapFragmentManager(zone2.fragments);
+    const fragments = new MapFragmentManager(fragmentSpots.map(([col, row]) => ({ col, row })));
     const visitedRunes = new Set();
 
     const door = new AncientDoor(zone2.exitGate.cols, zone2.exitGate.row, zone2.exitGate.toZone, () => {

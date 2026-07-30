@@ -523,6 +523,28 @@ export class TileRenderer {
     this.decorations.set(`${col},${row}`, flame);
   }
 
+  /**
+   * Public entry points for placing a collectible/sconce dynamically at runtime (after the
+   * initial _build() pass), so a zone can randomize item positions fresh on every load instead
+   * of baking them into the static layout. Each just wraps the existing private builder with a
+   * freshly computed world position for the given tile.
+   */
+  placeKey(col, row) {
+    this._addPickup(col, row, this.grid.worldPos(col, row), 0xd4af37, 'key');
+  }
+
+  placeFragment(col, row) {
+    this._addPickup(col, row, this.grid.worldPos(col, row), 0xf5d76e, 'map');
+  }
+
+  placeLog(col, row) {
+    this._addLog(col, row, this.grid.worldPos(col, row));
+  }
+
+  placeSconce(col, row) {
+    this._addSconce(col, row, this.grid.worldPos(col, row));
+  }
+
   /** Always-visible stone dais + carved symbol (so physical-mode players see runes exist), plus a spirit-only glow ring that only lights up for the Jaguar. */
   _addRune(col, row, pos) {
     const daisGeo = new THREE.CylinderGeometry(0.5, 0.55, 0.12, 6);

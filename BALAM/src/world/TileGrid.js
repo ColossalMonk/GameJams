@@ -39,6 +39,27 @@ export function parseLayout(rows) {
   return rows.map((row) => row.split(' ').filter(Boolean).map((ch) => LEGEND[ch]));
 }
 
+/**
+ * Picks a random open GROUND tile on a live grid, so item placement can vary every time a
+ * zone loads instead of sitting at the same memorized spot. Optionally constrained to a row
+ * or column range (e.g. "somewhere along this lane"), and excluding specific coordinates
+ * (spawn points, other items already placed this load). Returns null if nothing qualifies.
+ */
+export function randomOpenTile(grid, { rows = null, cols = null, exclude = [] } = {}) {
+  const [r0, r1] = rows || [1, grid.height - 2];
+  const [c0, c1] = cols || [1, grid.width - 2];
+  const candidates = [];
+  for (let r = r0; r <= r1; r++) {
+    for (let c = c0; c <= c1; c++) {
+      if (grid.get(c, r) !== TILE.GROUND) continue;
+      if (exclude.some(([ec, er]) => ec === c && er === r)) continue;
+      candidates.push([c, r]);
+    }
+  }
+  if (!candidates.length) return null;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
 const PATH_DIRS = [[0, -1], [0, 1], [-1, 0], [1, 0]];
 
 /**

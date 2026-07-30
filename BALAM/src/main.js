@@ -22,10 +22,23 @@ import { center } from './world/zones/center.js';
 import { buildZone } from './world/zones/buildZone.js';
 import { ZONE_CONFIGS } from './world/zones/zoneConfigs.js';
 
-const ZONES = { zone1, zone2, zone3, center };
-for (const config of ZONE_CONFIGS) ZONES[config.id] = buildZone(config);
+const HAND_ZONES = { zone1, zone2, zone3, center };
+const CONFIG_BY_ID = new Map(ZONE_CONFIGS.map((c) => [c.id, c]));
 
-const TOTAL_FRAGMENTS = Object.values(ZONES).reduce((sum, z) => sum + (z.fragments ? z.fragments.length : 0), 0);
+/**
+ * Generated zones (4-10) are rebuilt fresh every time they're entered — instead of once at
+ * app startup — so item placement (key/fragments/log/sconce lane) varies playthrough to
+ * playthrough rather than being fixed for the whole session. Hand-authored zones randomize
+ * their own placement inside createRules(), which likewise reruns on every zone load.
+ */
+function getZoneDef(id) {
+  const config = CONFIG_BY_ID.get(id);
+  return config ? buildZone(config) : HAND_ZONES[id];
+}
+
+const TOTAL_FRAGMENTS =
+  Object.values(HAND_ZONES).reduce((sum, z) => sum + (z.fragmentCount || 0), 0) +
+  ZONE_CONFIGS.reduce((sum, c) => sum + c.fragmentCount, 0);
 
 const appEl = document.getElementById('app');
 const sceneManager = new SceneManager(appEl);
@@ -117,7 +130,8 @@ function showCredits() {
     `Trust between two worlds: full`;
   creditsThanks.innerHTML =
     `Thank you for walking two worlds, ${playerName}.<br>` +
-    `<span style="font-size:11px;opacity:0.6;">Music: "Jungle Music" by enprogames &amp; "Dream Ambience" (CC0, OpenGameArt.org)</span>`;
+    `<span style="font-size:11px;opacity:0.6;">Music: "Jungle Music" by enprogames &amp; "Dream Ambience" (CC0, OpenGameArt.org)</span><br>` +
+    `<span style="font-size:11px;opacity:0.6;">Made with ❤️ by ColossalMonk</span>`;
   creditsScreen.classList.remove('hidden');
 }
 
@@ -277,7 +291,7 @@ function collectVineCandidates(grid) {
 }
 
 function requestTransition(toZoneId) {
-  const def = ZONES[toZoneId];
+  const def = getZoneDef(toZoneId);
   if (!def) return;
   if (def.entryRequirement && def.entryRequirement.minTrust && trustMeter.value < def.entryRequirement.minTrust) {
     hud.showMessage('The jungle does not yet trust you enough to go further.');
@@ -287,7 +301,7 @@ function requestTransition(toZoneId) {
 }
 
 function loadZone(id) {
-  const def = ZONES[id];
+  const def = getZoneDef(id);
   paused = false;
   pauseScreen.classList.add('hidden');
   if (cinematic) {

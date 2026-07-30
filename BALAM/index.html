@@ -314,6 +314,15 @@
       line-height: 1.8;
     }
     #menu-overlay.hidden { display: none; }
+    #menu-overlay .made-with {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #666;
+      letter-spacing: 0.04em;
+    }
 
     #ending-text {
       position: absolute;
@@ -529,6 +538,7 @@
         WASD / Arrows — move Explorer &nbsp;·&nbsp; Shift + move — pull a block &nbsp;·&nbsp; Click / Right-click — move &amp; interact as Jaguar &nbsp;·&nbsp; Tab / Space — switch &nbsp;·&nbsp; E — interact &nbsp;·&nbsp; Scroll — zoom &nbsp;·&nbsp; Esc — pause
       </div>
       <button id="menu-settings-btn">Settings</button>
+      <div class="made-with">Made with ❤️ by ColossalMonk</div>
     </div>
     <div id="story-screen" class="overlay-screen hidden">
       <div id="story-text"></div>

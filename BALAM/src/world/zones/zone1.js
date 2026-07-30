@@ -1,24 +1,26 @@
-import { parseLayout, TILE } from '../TileGrid.js';
+import { parseLayout, randomOpenTile, TILE } from '../TileGrid.js';
 import { RiverGate } from '../../mechanics/gates/RiverGate.js';
 import { SpiritBarrierGate } from '../../mechanics/gates/SpiritBarrierGate.js';
 import { AncientDoor } from '../../mechanics/gates/AncientDoor.js';
 import { MapFragmentManager } from '../../mechanics/MapFragment.js';
 
 // 16x16 — The Threshold. Physical-dominant tutorial zone.
+// Key/fragment/log/sconce are no longer baked into the layout — createRules() scatters them
+// fresh every time this zone loads, so they don't sit at a memorized spot playthrough to playthrough.
 const ROWS = [
   'T T T T T T G G T T T T T T T T',
   'T . . . . . . . . . . . . . . T',
   'T . T . . . . . . . . . . T . T',
   'T . . . . . . . . . . . . . . T',
   'T . T T . . . . . . . . T T . T',
-  'T . K . . . . . . . . . . M . T',
+  'T . . . . . . . . . . . . . . T',
   'T . . W W W W W W . . . . . . T',
-  'T . . . L W W W W . . . . . . T',
+  'T . . . . W W W W . . . . . . T',
   'T . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . T T . . T',
   'T S S S S S S S S S S S S S S T',
-  'T . . . C . . . . . . . . . . T',
+  'T . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . T',
   'T . . . . . . . . . . . . . . T',
@@ -32,7 +34,7 @@ export const zone1 = {
     explorer: { col: 7, row: 14 },
     jaguar: { col: 8, row: 14 },
   },
-  fragments: [{ col: 13, row: 5 }],
+  fragmentCount: 1,
   exitGate: { cols: [6, 7], row: 0, toZone: 'zone2' },
   entryRequirement: null,
   introHint: '[Tab]/[Space] swaps you between the Explorer and the Jaguar — each sees a different half of this jungle. A log lies near the water. A key glints somewhere in the threshold. Bring the jaguar to the door once both are yours.',
@@ -45,9 +47,32 @@ export const zone1 = {
   ],
 
   createRules(ctx) {
+    const spawnTiles = [[ctx.explorer.col, ctx.explorer.row], [ctx.jaguar.col, ctx.jaguar.row]];
+
+    // Sconce: a random column along its lane (the row just south of the barrier).
+    const sconceRow = 12;
+    const sconceCol = 1 + Math.floor(Math.random() * 14);
+    ctx.grid.set(sconceCol, sconceRow, TILE.TORCH_SCONCE);
+    ctx.renderer.placeSconce(sconceCol, sconceRow);
+
+    // Log: a random open spot along the river's lane (its south bank, rows 6-7).
+    const logSpot = randomOpenTile(ctx.grid, { rows: [6, 7] });
+    ctx.grid.set(logSpot[0], logSpot[1], TILE.PICKUP_LOG);
+    ctx.renderer.placeLog(logSpot[0], logSpot[1]);
+
+    // Key: anywhere valid, avoiding spawn/log/sconce.
+    const keySpot = randomOpenTile(ctx.grid, { exclude: [...spawnTiles, logSpot, [sconceCol, sconceRow]] });
+    ctx.grid.set(keySpot[0], keySpot[1], TILE.PICKUP_KEY);
+    ctx.renderer.placeKey(keySpot[0], keySpot[1]);
+
+    // Fragment: anywhere valid, avoiding everything already placed.
+    const fragSpot = randomOpenTile(ctx.grid, { exclude: [...spawnTiles, logSpot, [sconceCol, sconceRow], keySpot] });
+    ctx.grid.set(fragSpot[0], fragSpot[1], TILE.PICKUP_MAP);
+    ctx.renderer.placeFragment(fragSpot[0], fragSpot[1]);
+
     const river = new RiverGate([[5, 6], [5, 7]]);
-    const barrier = new SpiritBarrierGate({ col: 4, row: 12 }, 11, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
-    const fragments = new MapFragmentManager(zone1.fragments);
+    const barrier = new SpiritBarrierGate({ col: sconceCol, row: sconceRow }, 11, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    const fragments = new MapFragmentManager([{ col: fragSpot[0], row: fragSpot[1] }]);
     const door = new AncientDoor(zone1.exitGate.cols, zone1.exitGate.row, zone1.exitGate.toZone, () => {
       return ctx.explorer.hasKey;
     });

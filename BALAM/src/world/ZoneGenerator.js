@@ -24,17 +24,21 @@ export function carveTerrain(width, height, reservedRows, treeDensity = 0.07) {
   return layout;
 }
 
-/** A two-row river band; the log bridges one column once collected. */
+/** A two-row river band; the log bridges one column once collected. Its own resting spot is a random column along the bank (its "lane"), not always the same one. */
 export function placeRiver(layout, width, row, midCol) {
   for (let c = 1; c < width - 1; c++) {
     layout[row][c] = TILE.WATER;
     layout[row + 1][c] = TILE.WATER;
   }
-  layout[row + 1][midCol - 1] = TILE.PICKUP_LOG;
+  let logCol;
+  do {
+    logCol = 1 + Math.floor(Math.random() * (width - 2));
+  } while (logCol === midCol);
+  layout[row + 1][logCol] = TILE.PICKUP_LOG;
   return { bridgeTiles: [[midCol, row], [midCol, row + 1]] };
 }
 
-/** A solid, unbroken spirit wall — the sconce stands one tile in front of it (approach side), not in a gap in the wall itself. */
+/** A solid, unbroken spirit wall — the sconce stands one tile in front of it (approach side), at a random column along that lane rather than always dead-center. */
 export function placeBarrier(layout, width, row, midCol) {
   const barrierCols = [];
   for (let c = 1; c < width - 1; c++) {
@@ -42,8 +46,9 @@ export function placeBarrier(layout, width, row, midCol) {
     barrierCols.push(c);
   }
   const sconceRow = row + 1;
-  layout[sconceRow][midCol] = TILE.TORCH_SCONCE;
-  return { sconce: { col: midCol, row: sconceRow }, barrierRow: row, barrierCols };
+  const sconceCol = 1 + Math.floor(Math.random() * (width - 2));
+  layout[sconceRow][sconceCol] = TILE.TORCH_SCONCE;
+  return { sconce: { col: sconceCol, row: sconceRow }, barrierRow: row, barrierCols };
 }
 
 /** A full-width vine wall the Jaguar must wilt in spirit form — no gap to walk around. */

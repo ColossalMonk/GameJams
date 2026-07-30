@@ -1,16 +1,17 @@
-import { parseLayout, TILE } from '../TileGrid.js';
+import { parseLayout, randomOpenTile, TILE } from '../TileGrid.js';
 import { AncientDoor } from '../../mechanics/gates/AncientDoor.js';
 import { MapFragmentManager } from '../../mechanics/MapFragment.js';
 
 // 12x12 — The Dreaming. Spirit-dominant, smaller and more intense.
+// Fragments aren't baked into the layout — createRules() scatters them fresh every load.
 const ROWS = [
   'T T T T T G G T T T T T',
   'T . . . . . . . . . . T',
   'T . . C . . . . C . . T',
   'T . . . . . . . . . . T',
   'T . . . . . . . . . . T',
-  'T . . . . M . . . . . T',
-  'T . . . . . . . M . . T',
+  'T . . . . . . . . . . T',
+  'T . . . . . . . . . . T',
   'T . . . . . . . . . . T',
   'T . . . . . . . . . . T',
   'T . . . . . . . . . . T',
@@ -26,7 +27,7 @@ export const zone3 = {
     explorer: { col: 5, row: 11 },
     jaguar: { col: 6, row: 11 },
   },
-  fragments: [{ col: 5, row: 5 }, { col: 8, row: 6 }],
+  fragmentCount: 2,
   exitGate: { cols: [5, 6], row: 0, toZone: 'zone4' },
   entryRequirement: { minTrust: 0.7 },
   introHint: 'No key. No ritual. Only trust opens what lies ahead. Stay close to the jaguar.',
@@ -38,8 +39,16 @@ export const zone3 = {
   ],
 
   createRules(ctx) {
-    const fragments = new MapFragmentManager(zone3.fragments);
     const sconces = [{ col: 3, row: 2 }, { col: 8, row: 2 }];
+    const spawnTiles = [[ctx.explorer.col, ctx.explorer.row], [ctx.jaguar.col, ctx.jaguar.row]];
+    const fragmentSpots = [];
+    for (let i = 0; i < zone3.fragmentCount; i++) {
+      const spot = randomOpenTile(ctx.grid, { exclude: [...spawnTiles, ...fragmentSpots] });
+      ctx.grid.set(spot[0], spot[1], TILE.PICKUP_MAP);
+      ctx.renderer.placeFragment(spot[0], spot[1]);
+      fragmentSpots.push(spot);
+    }
+    const fragments = new MapFragmentManager(fragmentSpots.map(([col, row]) => ({ col, row })));
     const usedSconces = new Set();
 
     const door = new AncientDoor(zone3.exitGate.cols, zone3.exitGate.row, zone3.exitGate.toZone, () => {
