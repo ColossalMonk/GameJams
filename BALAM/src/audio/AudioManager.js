@@ -20,10 +20,10 @@ export class AudioManager {
 
     // --- Real background music (CC0, OpenGameArt.org) layered under the procedural textures ---
     this.physicalMusic = new Tone.Player({
-      url: '/audio/jungle-music.ogg', loop: true, autostart: true, volume: -10,
+      url: `${import.meta.env.BASE_URL}audio/jungle-music.ogg`, loop: true, autostart: true, volume: -10,
     }).connect(this.crossFade.a);
     this.spiritMusic = new Tone.Player({
-      url: '/audio/dream-ambience.mp3', loop: true, autostart: true, volume: -12,
+      url: `${import.meta.env.BASE_URL}audio/dream-ambience.mp3`, loop: true, autostart: true, volume: -12,
     }).connect(this.crossFade.b);
 
     // --- Physical ambient: warm drone + occasional bird pings ---
