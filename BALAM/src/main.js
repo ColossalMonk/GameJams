@@ -125,6 +125,7 @@ creditsRestartBtn.addEventListener('click', () => {
   creditsScreen.classList.add('hidden');
   nameInput.value = '';
   menuOverlay.classList.remove('hidden');
+  audio.stopAmbient();
 });
 
 let settingsReturnTo = 'menu';
@@ -208,6 +209,7 @@ pauseRestartBtn.addEventListener('click', () => {
 pauseTitleBtn.addEventListener('click', () => {
   pauseScreen.classList.add('hidden');
   menuOverlay.classList.remove('hidden');
+  audio.stopAmbient();
 });
 
 sceneManager.onResize = (w, h) => postFx.setSize(w, h);
@@ -420,7 +422,9 @@ inputManager.onRightClick = () => {
 startBtn.addEventListener('click', async () => {
   playerName = (nameInput.value || 'THE EXPLORER').toUpperCase();
   menuOverlay.classList.add('hidden');
+  const wasReady = audio.ready;
   await audio.init();
+  if (wasReady) audio.resumeAmbient();
   totalFragmentsCollected = 0;
   playStory(() => {
     journeyStartTime = performance.now();

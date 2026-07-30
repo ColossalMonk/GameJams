@@ -73,6 +73,29 @@ export class AudioManager {
 
     Tone.Transport.start();
     this.ready = true;
+    this.ambientPlaying = true;
+  }
+
+  /** Stops all music/ambient (background tracks, drone, pad, bird/arp loops) — used when returning to the title screen. SFX stings are unaffected. */
+  stopAmbient() {
+    if (!this.ready || !this.ambientPlaying) return;
+    this.physicalMusic.stop();
+    this.spiritMusic.stop();
+    this.physicalDrone.triggerRelease();
+    this.spiritPad.triggerRelease();
+    Tone.Transport.pause();
+    this.ambientPlaying = false;
+  }
+
+  /** Resumes music/ambient after stopAmbient() — used when starting a new game from the title screen. */
+  resumeAmbient() {
+    if (!this.ready || this.ambientPlaying) return;
+    Tone.Transport.start();
+    this.physicalMusic.start();
+    this.spiritMusic.start();
+    this.physicalDrone.triggerAttack('C2');
+    this.spiritPad.triggerAttack('C3');
+    this.ambientPlaying = true;
   }
 
   /** blend 0 = physical, 1 = spirit */
