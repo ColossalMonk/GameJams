@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Golden Hour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="viewfinder" class="hidden">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <span class="cross"></span>
+      <div class="flash"></div>
+    </div>
+
+    <div id="film" class="hidden" aria-label="shots left"></div>
+    <div id="tray"></div>
+    <div id="whiteout"></div>
+
+    <div id="title" class="overlay">
+      <div class="card">
+        <h1>Golden Hour</h1>
+        <p class="lede">The sun is swelling. Nobody minds.<br />You have five shots left.</p>
+        <p class="hint" id="hint">aim · scroll to zoom · click to shoot</p>
+        <button id="begin" type="button">Begin</button>
+      </div>
+    </div>
+
+    <div id="album" class="overlay hidden">
+      <div class="album-inner">
+        <h2 id="album-title"></h2>
+        <p id="album-total"></p>
+        <div id="polaroids"></div>
+        <div class="buttons">
+          <button id="again" type="button">Play again <kbd>Space</kbd></button>
+          <button id="save" type="button" class="quiet">Save album</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rotate">Turn your phone sideways ↻</div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

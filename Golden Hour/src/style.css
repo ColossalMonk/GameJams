@@ -1,0 +1,330 @@
+:root {
+  --ink: #2f2530;
+  --paper: #fbf3e4;
+  --paper-shade: #efe2c8;
+  --accent: #d9644a;
+  --gold: #f2b25c;
+  --hand: 'Caveat', 'Segoe Print', cursive;
+  --serif: 'Fraunces', Georgia, serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1f1a22;
+  color: var(--ink);
+  font-family: var(--serif);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  cursor: none;
+  touch-action: none;
+}
+
+#app.menu { cursor: default; }
+
+canvas { display: block; }
+
+.hidden { display: none !important; }
+
+/* ── Viewfinder ── */
+#viewfinder {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+#viewfinder .corner {
+  position: absolute;
+  width: 18%;
+  height: 18%;
+  border: 0 solid rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.45));
+}
+#viewfinder .tl { left: 0; top: 0; border-left-width: 3px; border-top-width: 3px; }
+#viewfinder .tr { right: 0; top: 0; border-right-width: 3px; border-top-width: 3px; }
+#viewfinder .bl { left: 0; bottom: 0; border-left-width: 3px; border-bottom-width: 3px; }
+#viewfinder .br { right: 0; bottom: 0; border-right-width: 3px; border-bottom-width: 3px; }
+
+#viewfinder .cross {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)) center / 2px 100% no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)) center / 100% 2px no-repeat;
+}
+
+#viewfinder .flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+}
+#viewfinder.shot .flash { animation: flash 0.35s ease-out; }
+#viewfinder.locked .corner { border-color: rgba(255, 255, 255, 0.35); }
+
+@keyframes flash {
+  from { opacity: 0.95; }
+  to { opacity: 0; }
+}
+
+/* ── Film counter ── */
+#film {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(31, 26, 34, 0.55);
+  border-radius: 6px;
+  pointer-events: none;
+}
+#film .frame {
+  width: 16px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s, transform 0.3s;
+}
+#film .frame.used {
+  opacity: 0.22;
+  transform: scale(0.8);
+}
+
+/* ── Tray of photos taken so far ── */
+#tray {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+#tray .mini {
+  width: 54px;
+  padding: 4px 4px 12px;
+  background: var(--paper);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: drop-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+#tray .mini img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+
+@keyframes drop-in {
+  from { transform: translateY(-40px) rotate(-12deg) scale(1.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ── Whiteout ── */
+#whiteout {
+  position: absolute;
+  inset: 0;
+  background: #fffaf2;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Overlays ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+#title {
+  background: radial-gradient(ellipse at center, rgba(31, 26, 34, 0.05), rgba(31, 26, 34, 0.45));
+  cursor: pointer;
+}
+
+#title .card {
+  text-align: center;
+  padding: 28px 40px 30px;
+  background: var(--paper);
+  border-radius: 4px;
+  box-shadow: 0 2px 0 var(--paper-shade), 0 18px 40px rgba(40, 20, 30, 0.35);
+  transform: rotate(-1.2deg);
+  max-width: 420px;
+}
+
+#title h1 {
+  margin: 0 0 8px;
+  font-size: clamp(40px, 7vw, 64px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+
+#title .lede {
+  margin: 0 0 14px;
+  font-family: var(--hand);
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+#title .hint {
+  margin: 0 0 20px;
+  font-size: 14px;
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+}
+
+button {
+  font: inherit;
+  font-size: 18px;
+  color: var(--paper);
+  background: var(--accent);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 26px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #a9452f;
+  transition: transform 0.1s;
+}
+button:active { transform: translateY(2px); box-shadow: 0 1px 0 #a9452f; }
+button.quiet { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px rgba(47, 37, 48, 0.25); }
+kbd {
+  font-family: inherit;
+  font-size: 12px;
+  opacity: 0.75;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Album ── */
+#album {
+  background: #fffaf2;
+  overflow-y: auto;
+  touch-action: pan-y;
+  align-items: flex-start;
+  cursor: default;
+}
+
+.album-inner {
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+  padding: 20px 0 28px;
+}
+
+#album-title {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0;
+  animation: fade-up 0.8s 0.2s forwards;
+}
+
+#album-total {
+  margin: 4px 0 22px;
+  font-family: var(--hand);
+  font-size: 26px;
+  opacity: 0;
+  animation: fade-up 0.8s 0.5s forwards;
+}
+
+#polaroids {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 2.4vw, 28px);
+  margin-bottom: 28px;
+}
+
+.polaroid {
+  width: clamp(130px, 17vw, 190px);
+  padding: 10px 10px 8px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(60, 40, 30, 0.22);
+  opacity: 0;
+  animation: settle 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+}
+
+.polaroid .photo {
+  position: relative;
+  aspect-ratio: 1;
+  background: #e9e1d4;
+  overflow: hidden;
+}
+.polaroid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: develop 2.4s ease-out both;
+}
+.polaroid.empty .photo { background: repeating-linear-gradient(-45deg, #f1ebe0 0 8px, #ebe3d6 8px 16px); }
+
+.polaroid .caption {
+  margin-top: 8px;
+  min-height: 2.4em;
+  font-family: var(--hand);
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.polaroid .score {
+  font-size: 12px;
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+.buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+@keyframes settle {
+  from { opacity: 0; transform: translateY(30px) rotate(var(--tilt, 0deg)) scale(1.08); }
+  to { opacity: 1; transform: rotate(var(--tilt, 0deg)); }
+}
+
+@keyframes develop {
+  0% { filter: brightness(2.2) contrast(0.3) sepia(0.4) blur(2px); }
+  100% { filter: none; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Portrait phones ── */
+#rotate {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(31, 26, 34, 0.75);
+  color: var(--paper);
+  font-size: 15px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate { display: block; }
+}
