@@ -92,13 +92,13 @@ export class Cat {
     this.pose();
   }
 
-  /** stretch: 0..1 sits up taller; yawn: 0..1 mouth open, eyes shut; sway: tail. */
-  pose({ stretch = 0, yawn = 0, sway = 0, head = 0 } = {}) {
-    this.body.scale.y = 1 + stretch * 0.12;
+  /** stretch: 0..1 sits up taller; yawn: 0..1 mouth open, eyes shut; stare: 0..1 wide eyes, puffed up; sway: tail. */
+  pose({ stretch = 0, yawn = 0, stare = 0, sway = 0, head = 0 } = {}) {
+    this.body.scale.set(1 + stare * 0.14, 1 + stretch * 0.12 + stare * 0.05, 1);
     this.head.rotation.z = head;
     this.head.position.y = 0.62 + yawn * 0.04;
     this.mouth.scale.set(1, Math.max(0.01, yawn), 1);
-    for (const e of this.eyes) e.scale.y = Math.max(0.1, 1 - yawn * 0.9);
-    this.tail.rotation.z = 0.25 + sway;
+    for (const e of this.eyes) e.scale.set(1 + stare * 0.7, Math.max(0.1, 1 - yawn * 0.9) * (1 + stare * 0.7), 1);
+    this.tail.rotation.z = 0.25 + sway + stare * (2.7 - sway);
   }
 }

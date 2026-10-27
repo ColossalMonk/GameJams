@@ -85,16 +85,17 @@ export class Audio {
     this.master.volume.cancelScheduledValues(Tone.now());
     this.master.volume.rampTo(-4, 0.1);
     this.padVolume.volume.value = -28;
+    // The bird is one monophonic synth, so chirps must be scheduled in time order.
+    let at = Tone.now() + 0.3;
     for (let i = 0; i < 5; i++) {
-      const at = Tone.now() + 0.3 + Math.random() * 6;
       this.chirp(at);
+      at += 0.6 + Math.random() * 1.2;
     }
   }
 
   chirp(at) {
     const base = 2600 + Math.random() * 900;
     this.bird.triggerAttackRelease(base, 0.06, at);
-    this.bird.frequency.setValueAtTime(base, at);
     this.bird.frequency.exponentialRampToValueAtTime(base * 1.4, at + 0.05);
     this.bird.triggerAttackRelease(base * 1.1, 0.05, at + 0.12);
   }

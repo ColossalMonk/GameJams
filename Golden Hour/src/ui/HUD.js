@@ -1,6 +1,6 @@
 import { SHOTS } from '../config.js';
 
-/** Film counter, the tray of photos taken so far, the shutter flash and the whiteout. */
+/** Film counter, tonight's request, the tray of photos taken so far, the shutter flash and the whiteout. */
 export class HUD {
   constructor() {
     this.app = document.getElementById('app');
@@ -9,6 +9,9 @@ export class HUD {
     this.tray = document.getElementById('tray');
     this.whiteout = document.getElementById('whiteout');
     this.title = document.getElementById('title');
+    this.request = document.getElementById('request');
+    this.requestText = document.getElementById('request-text');
+    this.titleRequest = document.getElementById('title-request');
     this.frames = [];
     for (let i = 0; i < SHOTS; i++) {
       const f = document.createElement('div');
@@ -23,6 +26,7 @@ export class HUD {
     this.app.classList.remove('menu');
     this.viewfinder.classList.remove('hidden', 'locked');
     this.film.classList.remove('hidden');
+    this.request.classList.remove('hidden', 'done');
     this.frames.forEach((f) => f.classList.remove('used'));
     this.tray.replaceChildren();
     this.setWhiteout(0);
@@ -32,7 +36,23 @@ export class HUD {
     this.app.classList.add('menu');
     this.viewfinder.classList.add('hidden');
     this.film.classList.add('hidden');
+    this.request.classList.add('hidden');
     this.tray.replaceChildren();
+  }
+
+  /** Show the evening's request on the title card and on the in-game tag. */
+  setRequest(number, text) {
+    this.requestText.textContent = text;
+    this.titleRequest.innerHTML = '';
+    const line = document.createElement('span');
+    line.textContent = `Evening No. ${number} · tonight's request: `;
+    const strong = document.createElement('strong');
+    strong.textContent = text;
+    this.titleRequest.append(line, strong);
+  }
+
+  requestDone() {
+    this.request.classList.add('done');
   }
 
   shot(index, dataUrl) {

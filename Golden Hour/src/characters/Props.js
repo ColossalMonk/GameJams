@@ -107,3 +107,25 @@ export function makeRingBox() {
   place(group, card(circle(0, 0, 0.04), null, { depth: 0.01, material: ringMat, shadows: false }), 0, 0.06, 0.03);
   return group;
 }
+
+/** A hot-air balloon with someone tiny in the basket. */
+export function makeBalloon() {
+  const group = new THREE.Group();
+  place(group, card(circle(0, 1.25, 0.95), '#e2574c'), 0, 0, 0);
+  place(group, card(ellipse(0, 1.25, 0.5, 0.95), '#f2c14e', { depth: 0.01 }), 0, 0, 0.04);
+  place(group, card(ellipse(0, 1.25, 0.18, 0.95), '#e2574c', { depth: 0.01 }), 0, 0, 0.05);
+  place(group, card(poly([[-0.62, 0.55], [0.62, 0.55], [0.22, 0.25], [-0.22, 0.25]]), '#e2574c'), 0, 0, 0.01);
+  place(group, card(rect(-0.2, 0, 0.02, 0.28), '#6b4636', { depth: 0.01 }), 0, 0, 0.02);
+  place(group, card(rect(0.18, 0, 0.02, 0.28), '#6b4636', { depth: 0.01 }), 0, 0, 0.02);
+  place(group, card(circle(0.05, 0.05, 0.09), '#f1c7a3'), 0, 0, -0.01);
+  place(group, card(roundRect(-0.22, -0.26, 0.44, 0.28, 0.05), '#a8714e'), 0, 0, 0.02);
+  return group;
+}
+
+/** A folded paper plane, nose pointing +x. */
+export function makePlane() {
+  const group = new THREE.Group();
+  place(group, card(poly([[0.32, 0], [-0.22, 0.14], [-0.12, 0]]), '#fbf6ee'), 0, 0, 0);
+  place(group, card(poly([[0.32, 0], [-0.12, 0], [-0.22, -0.08]]), '#e6dccb'), 0, 0, 0.02);
+  return group;
+}

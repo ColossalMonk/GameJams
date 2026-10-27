@@ -9,6 +9,9 @@ import { scorePhoto } from './game/Scoring.js';
 import { HUD } from './ui/HUD.js';
 import { Album } from './ui/Album.js';
 import { Audio } from './audio/Audio.js';
+import { Evening, randomEveningNumber } from './game/Evening.js';
+import { pickRequest, REQUEST_BONUS } from './game/Requests.js';
+import { setSunX } from './world/Sky.js';
 import { GAME_LENGTH, SHOTS, FILM_ADVANCE, WHITEOUT_START } from './config.js';
 
 const app = document.getElementById('app');
@@ -17,7 +20,9 @@ const sky = new Sky(stage.scene);
 const town = new Town(stage.scene);
 const particles = new Particles(stage.scene);
 const audio = new Audio();
-const cast = new Cast(stage.scene, particles, { onCue: (kind, m) => audio.cue(kind, m.x) });
+const cast = new Cast(stage.scene, particles, {
+  onCue: (kind, m) => audio.cue(kind, typeof m.x === 'function' ? m.x() : m.x),
+});
 const hud = new HUD();
 const album = new Album();
 const viewfinder = new Viewfinder(app, document.getElementById('viewfinder'), { onShoot: requestShot });
@@ -30,18 +35,38 @@ let photos = [];
 let lockedUntil = 0;
 let pendingShot = null;
 let albumAt = 0;
+let evening = null;
+let request = null;
+let requestDone = false;
 
 const PHOTO_SIZE = 512;
 
-function begin() {
+/**
+ * Every run is a numbered evening. The number seeds where the sun sets, the clouds, when
+ * each moment happens and how it turns out, which rare events show up, and the request.
+ * ?evening=123 in the URL picks a specific one.
+ */
+function prepareEvening(number) {
+  evening = new Evening(number);
+  setSunX(evening.range(-5, 7));
+  town.reseed(evening);
+  cast.reset(evening);
+  request = pickRequest(evening, cast);
+  requestDone = false;
+  hud.setRequest(evening.number, request.text);
+}
+
+/** mode: 'current' (from the title), 'new' or 'same' (from the album). */
+function begin(mode = 'current') {
   if (state === 'playing') return;
+  if (mode === 'new') prepareEvening(randomEveningNumber());
+  if (mode === 'same') prepareEvening(evening.number);
   audio.start().then(() => audio.startRun());
   state = 'playing';
   t = 0;
   photos = [];
   lockedUntil = 0;
   pendingShot = null;
-  cast.reset();
   particles.clear();
   album.hide();
   hud.startRun();
@@ -81,33 +106,45 @@ function takePhoto(rect) {
   hud.shot(photos.length - 1, dataUrl);
   audio.shutter();
   lockedUntil = t + FILM_ADVANCE;
+  if (!requestDone && request.test(photos)) {
+    requestDone = true;
+    hud.requestDone();
+  }
 }
 
 function endRun() {
   state = 'album';
   viewfinder.enabled = false;
   hud.endRun();
+  const fulfilled = request.test(photos);
+  const bonus = fulfilled ? REQUEST_BONUS : 0;
   while (photos.length < SHOTS) photos.push({ dataUrl: null, caption: 'You were too busy watching.', score: 0 });
-  const total = photos.reduce((sum, p) => sum + p.score, 0);
+  const total = photos.reduce((sum, p) => sum + p.score, 0) + bonus;
+  const night = { evening: evening.number, request: request.text, fulfilled, bonus };
   albumAt = wall + 0.7;
   setTimeout(() => {
-    album.show(photos, total);
+    album.show(photos, total, night);
     audio.album();
   }, 700);
 }
 
 // ── Input outside the viewfinder ──
-document.getElementById('title').addEventListener('click', begin);
-document.getElementById('again').addEventListener('click', (e) => {
-  e.stopPropagation();
-  begin();
-});
+document.getElementById('title').addEventListener('click', () => begin('current'));
+for (const [id, mode] of [['again', 'new'], ['same', 'same']]) {
+  document.getElementById(id).addEventListener('click', (e) => {
+    e.stopPropagation();
+    begin(mode);
+  });
+}
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Space' && e.code !== 'Enter') return;
   e.preventDefault();
   if (state === 'playing') requestShot();
-  else if (state === 'title' || (state === 'album' && wall > albumAt + 0.4)) begin();
+  else if (state === 'title') begin('current');
+  else if (state === 'album' && wall > albumAt + 0.4) begin('new');
 });
+
+prepareEvening(Number(new URLSearchParams(location.search).get('evening')) || randomEveningNumber());
 
 // ── Main loop ──
 const clock = new THREE.Clock();
@@ -141,4 +178,4 @@ requestAnimationFrame(frame);
 app.classList.add('menu');
 
 // Debug hook for development.
-window.__golden = { stage, cast, viewfinder, requestShot, get photos() { return photos; }, get t() { return t; }, set t(v) { t = v; } };
+window.__golden = { stage, cast, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };

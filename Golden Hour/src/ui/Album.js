@@ -1,9 +1,9 @@
 const TITLES = [
   [1, 'You Were Too Busy Watching'],
-  [500, 'Mostly Sky'],
-  [1500, 'A Nice Ending'],
-  [2600, 'Picture Perfect'],
-  [3800, 'The Last Great Album'],
+  [700, 'Mostly Sky'],
+  [2000, 'A Nice Ending'],
+  [3400, 'Picture Perfect'],
+  [5000, 'The Last Great Album'],
   [Infinity, 'Golden'],
 ];
 
@@ -20,15 +20,25 @@ export class Album {
     this.el = document.getElementById('album');
     this.titleEl = document.getElementById('album-title');
     this.totalEl = document.getElementById('album-total');
+    this.eveningEl = document.getElementById('album-evening');
+    this.requestEl = document.getElementById('album-request');
     this.grid = document.getElementById('polaroids');
     this.photos = [];
     this.total = 0;
+    this.evening = 0;
     document.getElementById('save').addEventListener('click', () => this.save());
   }
 
-  show(photos, total) {
+  /** night: { evening, request, fulfilled, bonus } */
+  show(photos, total, night) {
     this.photos = photos;
     this.total = total;
+    this.evening = night.evening;
+    this.eveningEl.textContent = `Elm Street · Evening No. ${night.evening}`;
+    this.requestEl.textContent = night.fulfilled
+      ? `Tonight's request: ${night.request} ✓ +${night.bonus}`
+      : `Tonight's request: ${night.request}. Missed it.`;
+    this.requestEl.classList.toggle('done', night.fulfilled);
     this.titleEl.textContent = titleFor(total);
     this.totalEl.textContent = total > 0 ? `${total.toLocaleString()} points of golden light` : 'Not a single photo. Maybe that was the point.';
     this.grid.replaceChildren(
@@ -54,6 +64,12 @@ export class Album {
         score.className = 'score';
         score.textContent = photo.dataUrl ? `${photo.score}` : '';
         card.append(frame, caption, score);
+        if (photo.rare) {
+          const sticker = document.createElement('span');
+          sticker.className = 'sticker';
+          sticker.textContent = 'rare';
+          card.prepend(sticker);
+        }
         return card;
       }),
     );
@@ -118,7 +134,7 @@ export class Album {
     });
     ctx.fillStyle = 'rgba(47,37,48,0.45)';
     ctx.font = '500 20px Fraunces, Georgia, serif';
-    ctx.fillText('Golden Hour · #20SecondGameJam', width / 2, height - 24);
+    ctx.fillText(`Golden Hour · Evening No. ${this.evening} · #20SecondGameJam`, width / 2, height - 24);
 
     canvas.toBlob((blob) => {
       const a = document.createElement('a');

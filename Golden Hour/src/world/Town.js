@@ -247,7 +247,7 @@ export class Town {
 
     // ── Clouds and birds (animated) ──
     this.clouds = [];
-    for (const [x, y, s] of [[-8, 8.4, 1.3], [-1, 9.6, 1], [7, 8.8, 1.15], [13, 7.2, 0.9]]) {
+    for (const [x, y, s] of [[-8, 8.4, 1.3], [-1, 9.6, 1], [7, 8.8, 1.15], [13, 7.2, 0.9], [-13, 9.2, 1.05], [3, 7.6, 0.8]]) {
       const c = card(cloud(2.6 * s, 0.9 * s), C.cloud, { depth: 0.04 });
       c.castShadow = false;
       place(g, c, x, y, -10.9);
@@ -263,6 +263,22 @@ export class Town {
       g.add(b);
       this.birds.push(b);
     }
+  }
+
+  /** Scatter the clouds and birds differently for a new evening. */
+  reseed(evening) {
+    const clouds = 2 + Math.floor(evening.range(0, this.clouds.length - 1));
+    this.clouds.forEach((c, i) => {
+      c.visible = i < clouds;
+      c.position.x = evening.range(-15, 15);
+      c.position.y = evening.range(7.2, 10.2);
+    });
+    const birds = 1 + Math.floor(evening.range(0, this.birds.length));
+    this.birds.forEach((b, i) => {
+      b.visible = i < birds;
+      b.userData.offset = evening.range(0, 34);
+      b.userData.y = evening.range(6.8, 9.2);
+    });
   }
 
   /** Ambient motion: clouds drift, birds cross and flap. Runs on wall-clock time. */

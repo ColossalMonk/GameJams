@@ -49,6 +49,21 @@ About 10 characters, each on a short animation loop, with **one key moment** at 
 
 Moment start times are randomised each run so you can't memorise a route; peaks are spaced so two never land in the same half-second.
 
+## Replay variety: evenings
+
+The town is small and finite, so variety comes from what happens in it, not more places. Each run is a seeded **evening**:
+
+| Changes per evening | How |
+|---|---|
+| Sun position | sets anywhere from behind the church to over the hill; the light angle follows |
+| Clouds and birds | count and placement |
+| Moment timing | random peak inside each moment's window, kept ≥0.6s apart |
+| Moment outcome | each moment has a second ending (~35%) with its own animation and captions |
+| Rare events | balloon crossing the sun, paper plane loop, early fireworks (~30% each, ×1.5 score) |
+| Tonight's request | one photo goal per evening, +600, drawn only from requests the evening can satisfy |
+
+Alternate endings: the cat stares at you · the kite nosedives · Biscuit misses · Lou's hat never comes back · trick candles relight · the car backfires · the bouquet lands on the church roof · Sam brought a ring too · June and Theo wave at you instead of kissing.
+
 ## Scoring a photo
 
 - **Subjects in frame:** points per character fully inside the viewfinder.

@@ -50,9 +50,13 @@ function thirds(b, f, size) {
 
 const KIND_POINTS = { peak: 500, near: 160, after: 90, idle: 60 };
 
+/** Rare moments (balloon, paper plane, fireworks) are worth more. */
+const RARE_BONUS = 1.5;
+
 /**
  * Score a photo from what was inside the viewfinder at the moment it was taken.
- * Returns { score, caption, kind }.
+ * Returns { score, caption, kind, tags, people, sunInside, rare }; the extra fields are what
+ * the evening's request checks.
  */
 export function scorePhoto({ t, rect, stage, cast }) {
   const camera = stage.camera;
@@ -60,9 +64,12 @@ export function scorePhoto({ t, rect, stage, cast }) {
   const h = stage.height;
   const f = { x0: rect.x, y0: rect.y, x1: rect.x + rect.size, y1: rect.y + rect.size };
   const candidates = [];
+  const tags = new Set();
+  let rare = false;
   let points = 0;
 
   for (const m of cast.moments) {
+    if (!m.active || (m.visible && !m.visible(t - m.peak))) continue;
     const boxes = m.focus().map((o) => screenBox(o, camera, w, h));
     if (!boxes.every((b) => coverage(b, f) >= 0.7)) continue;
     const u = union(boxes);
@@ -73,19 +80,25 @@ export function scorePhoto({ t, rect, stage, cast }) {
     if (p >= 0 && p <= m.dur) kind = 'peak';
     else if (p >= -0.5 && p < 0) kind = 'near';
     else if (p > m.dur) kind = 'after';
-    const pts = KIND_POINTS[kind] * framing + thirds(u, f, rect.size);
+    let pts = KIND_POINTS[kind] * framing + thirds(u, f, rect.size);
+    if (m.rare) {
+      pts *= RARE_BONUS;
+      rare = true;
+    }
+    if (kind === 'peak' || kind === 'after') for (const tag of m.tags[m.variant]) tags.add(tag);
     points += pts;
-    candidates.push({ pts, caption: m.captions[kind], kind });
+    candidates.push({ pts, caption: m.captions[m.variant][kind], kind });
   }
 
+  const people = cast.people.filter((person) => coverage(screenBox(person.object, camera, w, h), f) >= 0.7).length;
   if (t >= GROUP_WAVE.start && t <= GROUP_WAVE.end) {
-    const waving = cast.people.filter((person) => coverage(screenBox(person.object, camera, w, h), f) >= 0.7).length;
-    if (waving >= 2) {
-      const pts = 120 * waving;
+    if (people >= 2) {
+      tags.add('joy');
+      const pts = 120 * people;
       points += pts;
       candidates.push({
         pts,
-        caption: waving >= 4 ? 'Everyone on Elm Street, waving goodbye.' : 'Waving goodbye to the sun.',
+        caption: people >= 4 ? 'Everyone on Elm Street, waving goodbye.' : 'Waving goodbye to the sun.',
         kind: 'peak',
       });
     }
@@ -117,5 +130,5 @@ export function scorePhoto({ t, rect, stage, cast }) {
     caption = t > 15 ? 'The sun, filling the whole sky.' : 'The sun, closer than ever.';
     kind = 'sun';
   }
-  return { score, caption, kind };
+  return { score, caption, kind, tags: [...tags], people, sunInside, rare };
 }

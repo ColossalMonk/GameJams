@@ -6,11 +6,13 @@ const KINDS = {
   puff: { shape: circle(0, 0, 0.2), color: '#f4ede4', grow: 1.6, rise: 0.5, drag: 1.4 },
   smoke: { shape: circle(0, 0, 0.07), color: '#d8d2cc', grow: 2.2, rise: 0.6, drag: 0.6 },
   heart: { shape: heart(0.14), color: '#ff6f91', grow: 0.4, rise: 0.9, drag: 1.0 },
+  soot: { shape: circle(0, 0, 0.2), color: '#5a5258', grow: 1.8, rise: 0.4, drag: 1.6 },
+  spark: { shape: circle(0, 0, 0.06), color: '#ffd27a', grow: 0, rise: -1.2, drag: 1.1, glow: 2.4 },
 };
 
 /** Paper puffs of smoke and little hearts that float up and fade. */
 export class Particles {
-  constructor(scene, size = 60) {
+  constructor(scene, size = 110) {
     this.pool = [];
     const geos = {};
     for (const [k, def] of Object.entries(KINDS)) {
@@ -25,11 +27,14 @@ export class Particles {
     }
   }
 
-  spawn(kind, pos, vel = new THREE.Vector3(), { life = 1.2, scale = 1 } = {}) {
+  spawn(kind, pos, vel = new THREE.Vector3(), { life = 1.2, scale = 1, color = null } = {}) {
     const p = this.pool.find((q) => !q.mesh.visible) || this.pool[0];
     p.kind = kind;
     p.mesh.geometry = p.geos[kind];
-    p.mesh.material.color.set(KINDS[kind].color);
+    const def = KINDS[kind];
+    p.mesh.material.color.set(color || def.color);
+    p.mesh.material.emissive.set(def.glow ? color || def.color : '#000000');
+    p.mesh.material.emissiveIntensity = def.glow || 0;
     p.mesh.position.copy(pos);
     p.mesh.rotation.z = (Math.random() - 0.5) * 0.6;
     p.vel.copy(vel);

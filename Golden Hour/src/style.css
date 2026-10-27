@@ -109,6 +109,36 @@ canvas { display: block; }
   transform: scale(0.8);
 }
 
+/* ── Tonight's request tag ── */
+#request {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 7px 14px 8px;
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 6px 14px rgba(40, 20, 30, 0.28);
+  transform: rotate(-1.5deg);
+  pointer-events: none;
+  animation: drop-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+  transition: background 0.3s;
+}
+#request .label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+#request-text {
+  font-family: var(--hand);
+  font-size: 22px;
+  line-height: 1.05;
+}
+#request.done { background: #e7f1d8; }
+#request.done #request-text::after { content: ' ✓'; color: #4f8a3a; }
+
 /* ── Tray of photos taken so far ── */
 #tray {
   position: absolute;
@@ -182,6 +212,13 @@ canvas { display: block; }
   line-height: 1.15;
 }
 
+#title .tonight {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#title .tonight strong { color: var(--accent); font-weight: 600; }
+
 #title .hint {
   margin: 0 0 20px;
   font-size: 14px;
@@ -247,6 +284,26 @@ kbd {
   animation: fade-up 0.8s 0.5s forwards;
 }
 
+#album-evening {
+  margin: 0 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+#album-request {
+  display: inline-block;
+  margin: -8px 0 22px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+  background: rgba(47, 37, 48, 0.07);
+  opacity: 0;
+  animation: fade-up 0.8s 0.7s forwards;
+}
+#album-request.done { background: #e7f1d8; color: #35602a; }
+
 #polaroids {
   display: flex;
   flex-wrap: wrap;
@@ -262,6 +319,24 @@ kbd {
   box-shadow: 0 6px 18px rgba(60, 40, 30, 0.22);
   opacity: 0;
   animation: settle 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+}
+
+.polaroid { position: relative; }
+.polaroid .sticker {
+  position: absolute;
+  top: -10px;
+  right: -12px;
+  z-index: 1;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: rotate(8deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .polaroid .photo {

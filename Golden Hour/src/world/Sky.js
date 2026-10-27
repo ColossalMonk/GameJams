@@ -25,12 +25,18 @@ const NUMBER_FIELDS = ['intensity', 'height', 'hemi', 'lamps'];
 // Pre-parse colours once.
 for (const k of KEYS) for (const f of COLOR_FIELDS) k[f] = new THREE.Color(k[f]);
 
-/** Where the sun is centred and how big it is at time t. */
-export const SUN_X = 3.6;
+/** Where the sun sets changes every evening (see setSunX). */
+let sunX = 3.6;
 const SUN_Z = -11.5;
+
+export function setSunX(x) {
+  sunX = x;
+}
+
+/** Where the sun is centred and how big it is at time t. */
 export function sunCentre(t) {
   const u = Math.min(1, t / 17);
-  return new THREE.Vector3(SUN_X, 8.2 - 3.8 * (u * u * (3 - 2 * u)), SUN_Z);
+  return new THREE.Vector3(sunX, 8.2 - 3.8 * (u * u * (3 - 2 * u)), SUN_Z);
 }
 export function sunRadius(t) {
   return 1.4 * Math.exp(0.1353 * t);
@@ -143,7 +149,8 @@ export class Sky {
 
     this.light.color.copy(s.light);
     this.light.intensity = s.intensity;
-    this.light.position.set(17, s.height, 8);
+    // The key light leans the same way as the sun, so shadows change with it.
+    this.light.position.set(11 + sunX * 1.6, s.height, 8);
     this.hemi.color.copy(s.hemiSky);
     this.hemi.groundColor.copy(s.hemiGround);
     this.hemi.intensity = s.hemi;

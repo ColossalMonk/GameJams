@@ -19,6 +19,7 @@
     </div>
 
     <div id="film" class="hidden" aria-label="shots left"></div>
+    <div id="request" class="hidden"><span class="label">Tonight's request</span><span id="request-text"></span></div>
     <div id="tray"></div>
     <div id="whiteout"></div>
 
@@ -26,6 +27,7 @@
       <div class="card">
         <h1>Golden Hour</h1>
         <p class="lede">The sun is swelling. Nobody minds.<br />You have five shots left.</p>
+        <p class="tonight" id="title-request"></p>
         <p class="hint" id="hint">aim · scroll to zoom · click to shoot</p>
         <button id="begin" type="button">Begin</button>
       </div>
@@ -33,11 +35,14 @@
 
     <div id="album" class="overlay hidden">
       <div class="album-inner">
+        <p id="album-evening"></p>
         <h2 id="album-title"></h2>
         <p id="album-total"></p>
+        <p id="album-request"></p>
         <div id="polaroids"></div>
         <div class="buttons">
-          <button id="again" type="button">Play again <kbd>Space</kbd></button>
+          <button id="again" type="button">New evening <kbd>Space</kbd></button>
+          <button id="same" type="button" class="quiet">Same evening again</button>
           <button id="save" type="button" class="quiet">Save album</button>
         </div>
       </div>
