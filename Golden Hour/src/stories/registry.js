@@ -17,6 +17,7 @@ import fireworks from './catalogue/fireworks.js';
 import batchA from './catalogue/index-a.js';
 import batchB from './catalogue/index-b.js';
 import batchC from './catalogue/index-c.js';
+import batchD from './catalogue/index-d.js';
 
 export const STORIES = [
   cat,
@@ -34,6 +35,7 @@ export const STORIES = [
   ...batchA,
   ...batchB,
   ...batchC,
+  ...batchD,
 ];
 
 const ids = new Set();

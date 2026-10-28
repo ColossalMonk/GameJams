@@ -19,6 +19,7 @@ export default defineStory({
         after: '{thrower} and {partner}, just married.',
         idle: '{thrower} and {partner}, just married.',
       },
+      throws: { lands: 1.5, kinds: ['hand', 'mouth'], caption: '{target} caught the bouquet.', after: '{target}, holding the bouquet.' },
     },
     alt: {
       tags: ['love', 'air', 'oops'],
@@ -30,7 +31,7 @@ export default defineStory({
       },
     },
   },
-  create({ slot, person, group, outcome }) {
+  create({ slot, person, group, outcome, cross }) {
     const bride = person('thrower', slot.x - 0.42, 0, slot.z, 'R');
     const groom = person('partner', slot.x + 0.42, 0, slot.z, 'R');
     const bouquet = makeBouquet();
@@ -41,9 +42,11 @@ export default defineStory({
     const flight = 1.5;
     const dur = 0.7;
     let start = null;
+    const end = vec();
 
     return {
       focus: () => [bride.root],
+      thrown: bouquet,
       update(p, { wall, outcome: o }) {
         const alt = o === 'alt';
         let armL = 0.3;
@@ -68,9 +71,16 @@ export default defineStory({
             start.y += 0.08;
           }
           const q = p / flight;
-          bouquet.position.lerpVectors(start, landing, q);
-          bouquet.position.y += 4 * q * (1 - q) * 2.0;
+          if (cross?.active) cross.point(end);
+          else end.copy(landing);
+          bouquet.position.lerpVectors(start, end, q);
+          bouquet.position.y += 4 * q * (1 - q) * (2.0 + 0.1 * start.distanceTo(end));
           bouquet.rotation.z = q * Math.PI * 3;
+        } else if (cross?.active) {
+          cross.land();
+          cross.point(bouquet.position);
+          bouquet.position.z += 0.06;
+          bouquet.rotation.z = 0.3;
         } else {
           bouquet.position.copy(landing);
           bouquet.rotation.z = alt ? 0.5 : 1.4;

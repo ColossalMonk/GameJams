@@ -14,14 +14,17 @@ Entry for the [20 Second Game Jam 2026](https://itch.io/jam/20-second-game-jam-2
 
 Each run is a numbered evening (1–9999), and the number seeds everything that changes:
 
-- **which stories happen, and where.** The director picks 8–10 of the 28 stories in the catalogue and gives each one a free spot in town (rooftop, road, windows, building site, church tower, horizon, sky, pavement …).
+- **which stories happen, and where.** The director picks 8–10 of the 30 stories in the catalogue and gives each one a free spot in town (rooftop, road, windows, building site, church tower, horizon, sky, pavement …).
 - **who is in them.** Townspeople are generated each evening (look and name), and captions use their names.
 - **the street.** The row of houses behind the café is rebuilt each evening, and becomes a building site with a tower crane when a site story is on.
 - **how each story ends.** Every story has 2–3 outcomes: the dog misses, the car backfires, the piano drops, the yoga class topples, the cheese wins …
 - **when each peak happens.** Peaks are spread out: never closer than 0.6 s, at most two build-ups at once, alternating sides of the screen, and something always happens in the first 3 s.
 - where the sun sets, and the clouds and birds.
+- **stories landing in each other.** When a story throws something, it can land on someone in another story nearby: the bouquet in a stranger's hand, the musician's hat on someone's head, the flying sheet over the opera singer ("a ghost"), a missed frisbee or a runaway flag caught in the street. These crossovers are photo moments of their own and score ×1.3.
+- **chain events.** The bell ringer's pigeons fly over and sit on the apartment roof when someone is up there. The balloon seller's balloons snag on the crane when the building site is up. The banner plane says MARRY ME when there's a proposal or a wedding.
 - rare stories (about 30% each): a hot-air balloon crossing the sun, a paper plane looping the loop, early fireworks. They score ×1.5 and get a "rare" sticker.
-- tonight's request: one kind of photo the town asks for ("Something in the air", "Something going wrong", "Three people in one shot"…), worth +600.
+- legendary stories (about 3% each): a UFO that came to watch, and a cloud shaped exactly like a whale. They score ×2 and get a "legendary" sticker.
+- tonight's request: one kind of photo the town asks for, worth +600. Requests are only offered when tonight's stories can satisfy them. They include "Something in the air", "Something going wrong", "Something on wheels", "Someone finally finishing something", "Something falling", "One story landing in another" and "Three people in one shot".
 
 ### The stories
 
@@ -33,7 +36,7 @@ Each run is a numbered evening (1–9999), and the number seeds everything that 
 | Café, church, wall | birthday · wedding · cat |
 | Park and hill | frisbee dog · yoga · kite · cheese rolling |
 | Building site | crane lifts a piano · lunch on a beam · last-beam flag |
-| Sky and horizon | banner plane · train on the viaduct · balloon (rare) · paper plane (rare) · fireworks (rare) |
+| Sky and horizon | banner plane · train on the viaduct · balloon (rare) · paper plane (rare) · fireworks (rare) · UFO (legendary) · whale cloud (legendary) |
 
 The album shows the evening number. "Same evening again" replays it so you can try to get a better album. Adding `?evening=123` to the URL loads a specific evening.
 
@@ -71,7 +74,8 @@ npm run dev
 ### Development tools
 
 - **Story gallery:** open the dev server with `?story=crane` (or `?story=kite&outcome=alt&peak=6`). It plays one story on its own, with a time slider, an outcome picker and the box scoring uses. Keys: Space play/pause, `[` `]` previous/next story, `o` next outcome, `r` restart.
-- **Self-test:** `node tools/selftest.mjs` runs headless in Node. It plays every story and outcome to its peak, frames it like a player and checks it scores as a peak with the right caption, then plans and plays 300 evenings looking for crashes, slot clashes and peaks too close together. `node tools/selftest.mjs crane` checks one story.
+- **Self-test:** `node tools/selftest.mjs` runs headless in Node. It plays every story and outcome to its peak, frames it like a player and checks it scores as a peak with the right caption. It does the same for every crossover and chain event. Then it plans and plays 300 evenings, looking for crashes, slot clashes and peaks too close together, and reports how many evenings have a crossover. `node tools/selftest.mjs crane` checks one story.
+- **Find an evening:** `node tools/find-evening.mjs crossover` (or a story id such as `ufo`) lists evening numbers that have one, to open with `?evening=N`.
 
 `npm run build` writes `dist/`. Zip the contents of `dist/` and upload it to itch.io as an HTML game.
 

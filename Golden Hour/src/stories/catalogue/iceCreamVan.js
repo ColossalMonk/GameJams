@@ -55,6 +55,7 @@ export default defineStory({
   slot: 'road',
   window: [5.0, 13.5],
   dur: 0.8,
+  tags: ['wheels'],
   cast: { seller: {}, kid: { kid: true } },
   outcomes: {
     main: {
@@ -67,7 +68,7 @@ export default defineStory({
       },
     },
     drop: {
-      tags: ['oops'],
+      tags: ['oops', 'falling'],
       captions: {
         peak: "{kid}'s last scoop, falling.",
         near: '{kid}, running for the van.',

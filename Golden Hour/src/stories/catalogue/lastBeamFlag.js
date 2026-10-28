@@ -19,7 +19,7 @@ export default defineStory({
   cast: { worker: { dress: false, look: { top: '#f08a3c' } } },
   outcomes: {
     main: {
-      tags: ['joy'],
+      tags: ['joy', 'finally'],
       captions: {
         peak: "{worker}'s flag, up at last.",
         near: '{worker}, planting the flag.',
@@ -35,9 +35,10 @@ export default defineStory({
         after: '{worker}, holding a bare pole.',
         idle: '{worker}, up on the last beam.',
       },
+      throws: { lands: 1.65, kinds: ['hand'], caption: "{target} caught {worker}'s flag.", after: '{target}, flying the flag.' },
     },
   },
-  create({ site, person, group, evening, particles }) {
+  create({ site, person, group, evening, particles, cross }) {
     const z = site.z + 0.25;
     const worker = person('worker', FX, BEAM, z, 'L');
     wearHat(worker, makeHardHat('#fbf6ee'));
@@ -63,9 +64,11 @@ export default defineStory({
     let loose = false;
     let flying = false;
     const flyFrom = vec();
+    const end = vec();
 
     return {
       focus: () => (flying ? [worker.root, flag] : [worker.root, pole]),
+      thrown: flag,
       x: () => POST,
       update(p, { wall, outcome }) {
         const alt = outcome === 'alt';
@@ -120,7 +123,18 @@ export default defineStory({
           flyFrom.copy(flag.position);
         }
         flying = loose && p < gust + 1.4;
-        if (loose) {
+        if (loose && cross?.active) {
+          // Down to someone in the street, who catches it.
+          const u = smooth(seg(p, gust, gust + 1.4));
+          cross.point(end);
+          flag.position.lerpVectors(flyFrom, end, u);
+          flag.position.y += 4 * u * (1 - u) * (1.0 + 0.08 * flyFrom.distanceTo(end));
+          flag.position.z += 0.06;
+          flag.rotation.z = (1 - u) * -(p - gust) * 3.2;
+          flag.scale.set(open, 1, 1);
+          flag.visible = true;
+          if (u >= 1) cross.land();
+        } else if (loose) {
           const t = p - gust;
           flag.position.set(flyFrom.x + 2.6 * t + 0.4 * t * t, flyFrom.y + 1.1 * t + 0.25 * Math.sin(t * 5), flyFrom.z);
           flag.rotation.z = -t * 3.2;

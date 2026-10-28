@@ -24,6 +24,7 @@ export default defineStory({
         after: 'A sheet, waving goodbye over town.',
         idle: '{hanger}, finally doing the washing.',
       },
+      throws: { lands: 1.6, kinds: ['head'], caption: '{target}, suddenly a ghost.', after: '{target}, still a ghost.' },
     },
     line: {
       tags: ['air', 'oops'],
@@ -44,7 +45,7 @@ export default defineStory({
       },
     },
   },
-  create({ slot, person, group, evening, outcome }) {
+  create({ slot, person, group, evening, outcome, cross }) {
     const y0 = slot.y;
     const z = slot.z - 0.25;
     const x0 = slot.x - 1.3;
@@ -75,11 +76,14 @@ export default defineStory({
     const hand = vec();
     const head = vec();
     const from = vec();
+    const end = vec();
+    const sheetFlight = 1.6;
     const flying = outcome === 'line';
     const lineAt = (x, wall, f) => lineY - 0.07 * Math.sin((Math.PI * (x - x0)) / (x1 - x0)) + Math.sin(wall * 5 + x * 2) * 0.08 * f;
 
     return {
       focus: () => (outcome === 'main' ? [flyer.group] : outcome === 'line' ? [washing] : [hanger.root, flyer.group]),
+      thrown: flyer?.group,
       x: () => (flyer ? flyer.group.position.x : washing.position.x + slot.x),
       visible: () => {
         const o = outcome === 'main' ? flyer.group.position : washing.position;
@@ -138,7 +142,21 @@ export default defineStory({
           }
         }
 
-        if (outcome === 'main' && p >= 0) {
+        if (outcome === 'main' && p >= 0 && cross?.active) {
+          // Off it goes, and down over someone else's head: a new ghost.
+          const g = flyer.group;
+          const u = smooth(seg(p, 0, sheetFlight));
+          from.copy(g.position);
+          cross.point(end);
+          end.y += 0.1;
+          end.z += 0.12;
+          g.position.lerpVectors(from, end, u);
+          g.position.y += 4 * u * (1 - u) * (1.2 + 0.1 * from.distanceTo(end));
+          g.rotation.set(-0.4 * (1 - u), 0, Math.sin(wall * 4) * 0.25 * (1 - u) + Math.sin(wall * 2.6) * 0.05 * u);
+          g.scale.set(lerp(1.1, 1.6, u), lerp(1, 1.9, u), 1);
+          for (const e of flyer.eyes) e.visible = p > 0.15;
+          if (u >= 1) cross.land();
+        } else if (outcome === 'main' && p >= 0) {
           // Off it goes, like a small ghost.
           const g = flyer.group;
           g.position.x += 1.5 * p + 0.2 * Math.sin(p * 2);

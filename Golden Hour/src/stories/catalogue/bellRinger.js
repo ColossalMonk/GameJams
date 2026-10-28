@@ -1,9 +1,13 @@
 import * as THREE from 'three';
 import { defineStory } from '../Story.js';
-import { seg, smooth, lerp, vec } from '../anim.js';
+import { seg, smooth, lerp, arc, vec } from '../anim.js';
 import { makeBelfry, makePigeon } from '../props/a-props.js';
+import { LAYOUT } from '../../world/Town.js';
 
 const FLYERS = 6;
+/** How many pigeons go and sit on the apartment roof when someone is up there tonight. */
+const ROOSTERS = 4;
+const ROOST_FLIGHT = 2.0;
 
 /** Allowed to ring the church bell at last: the pigeons scatter, or the rope gives way. */
 export default defineStory({
@@ -14,7 +18,7 @@ export default defineStory({
   cast: { ringer: {} },
   outcomes: {
     main: {
-      tags: ['animal', 'joy'],
+      tags: ['animal', 'joy', 'finally'],
       captions: {
         peak: '{ringer} rang the bell. The pigeons objected.',
         near: '{ringer}, one big pull.',
@@ -23,7 +27,7 @@ export default defineStory({
       },
     },
     snap: {
-      tags: ['oops'],
+      tags: ['oops', 'falling'],
       captions: {
         peak: '{ringer}, the rope, and the ground.',
         near: '{ringer}, one big pull.',
@@ -41,7 +45,7 @@ export default defineStory({
       },
     },
   },
-  create({ slot, person, group, evening, outcome, particles }) {
+  create({ slot, person, group, evening, outcome, particles, tonight, moment }) {
     const snap = outcome === 'snap';
     const stubborn = outcome === 'stubborn';
     const belfry = makeBelfry();
@@ -71,6 +75,31 @@ export default defineStory({
         group.add(pg.group);
       }
       flyers.push({ pg, v, own: i < FLYERS, delay: evening.range(0, 0.15), phase: evening.range(0, 6), home: pg.group.position.clone() });
+    }
+
+    // Chain: if a rooftop story is on tonight, the first few pigeons fly over and sit with them.
+    const roosting = !snap && (tonight.includes('rooftopKiss') || tonight.includes('laundry'));
+    const roosters = [];
+    if (roosting) {
+      const A = LAYOUT.apartment;
+      for (const f of flyers.filter((q) => q.own).slice(0, ROOSTERS)) {
+        f.roost = vec(A.x - A.w / 2 + 0.35 + roosters.length * 0.72 + evening.range(-0.1, 0.1), A.h + 0.32, A.z + 0.6);
+        roosters.push(f.pg.group);
+      }
+      moment({
+        id: 'roost',
+        at: ROOST_FLIGHT + 0.2,
+        dur: 1.6,
+        focus: () => roosters,
+        visible: (p) => p > -0.6,
+        tags: ['crossover', 'animal'],
+        captions: {
+          peak: "{ringer}'s pigeons, now on the roof.",
+          near: 'Pigeons, heading for the roof.',
+          after: 'Pigeons, watching the sunset from the roof.',
+          idle: 'Pigeons, watching the sunset from the roof.',
+        },
+      });
     }
 
     const ropeGeo = new THREE.BufferGeometry();
@@ -175,6 +204,19 @@ export default defineStory({
         }
         for (const f of flyers) {
           const t = p - f.delay;
+          if (f.roost) {
+            // Over to the apartment roof, then settle on the parapet.
+            f.pg.group.visible = t >= 0;
+            if (t < 0) continue;
+            const u = smooth(seg(t, 0, ROOST_FLIGHT));
+            const pos = f.pg.group.position;
+            pos.lerpVectors(mouthOfBelfry, f.roost, u);
+            pos.y += arc(u, 1.4);
+            f.pg.group.scale.x = u < 1 ? 1 : Math.sin(wall * 0.7 + f.phase) > 0 ? 1 : -1;
+            f.pg.group.rotation.z = u < 1 ? 0.2 : 0;
+            f.pg.wing.rotation.z = u < 1 ? Math.sin(wall * 22 + f.phase) * 0.9 : 0;
+            continue;
+          }
           const go = !snap && t >= 0 && t < 8;
           if (f.own) f.pg.group.visible = go;
           if (!go) {

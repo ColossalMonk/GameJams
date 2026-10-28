@@ -1,4 +1,5 @@
-import { RARITY_CHANCE, pickOutcome } from '../stories/Story.js';
+import { RARITY_CHANCE, pickOutcome, offersOf } from '../stories/Story.js';
+import { GROUP_WAVE } from '../config.js';
 
 /** Peaks closer than this would ask the player to be in two places at once. */
 const MIN_GAP = 0.6;
@@ -11,13 +12,23 @@ const COUNT = [8, 10];
 /** At least one story should be able to peak this early, so the first seconds aren't empty. */
 const EARLY = 3.0;
 
+/** How often a throw that could land in another story actually does. */
+const CROSS_CHANCE = 0.9;
+/** How far (in x) a thrown thing can travel to another story. */
+const CROSS_REACH = 9;
+/** A target's own peak must be at least this far from the landing, so neither is spoiled. */
+const CROSS_CLEAR = 1.2;
+/** Slots whose people stand still enough to catch something. */
+const CATCH_SLOTS = new Set(['pavement', 'park', 'cafe', 'church', 'wall', 'hill', 'kerb', 'rooftop', 'window', 'tower']);
+
 const third = (x) => (x < -4 ? 0 : x > 4 ? 2 : 1);
 
 /**
  * Plans an evening: which stories happen tonight, where, how they turn out and when they
  * peak. Everything is drawn from the evening's seeded generator.
  *
- * Returns [{ story, slots: [slot…], outcome, peak }].
+ * Returns [{ story, slots: [slot…], outcome, peak, cross? }]. cross.target is the planned
+ * story this one's thrown prop lands in.
  */
 export function planEvening(evening, { stories, slots, place = 'elm', only = null }) {
   // 1. Who's eligible tonight: rarity is rolled per story.
@@ -75,6 +86,36 @@ export function planEvening(evening, { stories, slots, place = 'elm', only = nul
     }
     item.peak = best.peak;
     placed.push({ peak: item.peak, where });
+  }
+
+  // 5. Chain: a banner plane on a night with a proposal or a wedding asks the obvious question.
+  const banner = chosen.find((item) => item.story.id === 'bannerPlane');
+  if (banner?.outcome === 'thanks' && chosen.some((item) => item.story.id === 'proposal' || item.story.id === 'wedding')) {
+    banner.outcome = 'main';
+  }
+
+  // 6. Crossovers: things thrown in one story land on someone in another nearby.
+  if (!only) {
+    const targeted = new Set();
+    for (const item of chosen) {
+      const throws = item.story.outcomes[item.outcome].throws;
+      if (!throws || !evening.chance(CROSS_CHANCE)) continue;
+      const lands = item.peak + throws.lands;
+      if (lands > GROUP_WAVE.start - 0.3) continue;
+      const candidates = chosen.filter(
+        (o) =>
+          o !== item &&
+          !targeted.has(o) &&
+          CATCH_SLOTS.has(o.slots[0].type) &&
+          Math.abs(o.slots[0].x - item.slots[0].x) <= CROSS_REACH &&
+          Math.abs(o.peak - lands) > CROSS_CLEAR &&
+          throws.kinds.some((k) => offersOf(o.story).has(k)),
+      );
+      if (!candidates.length) continue;
+      const target = evening.pick(candidates);
+      targeted.add(target);
+      item.cross = { target };
+    }
   }
   return chosen;
 }

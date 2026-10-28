@@ -44,7 +44,7 @@ export default defineStory({
       },
     },
   },
-  create({ slot, person, group, evening, outcome }) {
+  create({ slot, person, group, evening, outcome, site, moment }) {
     const seller = person('seller', slot.x - 0.3, 0, slot.z, 'L');
     const kid = person('kid', slot.x + 0.75, 0, slot.z + 0.15, 'R');
     const balloons = BUNCH.map(([x, y], i) => {
@@ -69,13 +69,33 @@ export default defineStory({
     // How far the released bunch has risen p seconds after letting go.
     const rise = (p) => (p > 0 ? 0.55 * p + 0.32 * p * p : 0);
 
+    // Chain: with the crane up tonight, the released bunch drifts over and snags on its jib.
+    const snag = outcome === 'main' && site ? vec(Math.min(Math.max(slot.x, site.jib.x0 + 0.4), site.jib.x1 - 0.4), site.jib.y - 0.35, site.z + 0.3) : null;
+    const SNAG_FROM = 0.6;
+    const SNAG_AT = 3.6;
+    if (snag) {
+      moment({
+        id: 'crane',
+        at: SNAG_AT,
+        dur: 1.6,
+        focus: () => balloons,
+        tags: ['crossover', 'air'],
+        captions: {
+          peak: "{seller}'s balloons, caught on the crane.",
+          near: 'Balloons, drifting toward the crane.',
+          after: "{seller}'s balloons, still on the crane.",
+          idle: "{seller}'s balloons, still on the crane.",
+        },
+      });
+    }
+
     return {
       focus: () => {
         if (outcome === 'lifted') return [seller.root, ...balloons];
         if (outcome === 'keepOne' && lastP > dur + 0.4) return [kid.root, balloons[KEPT]];
         return balloons;
       },
-      visible: (p) => outcome !== 'main' || p < 4.0,
+      visible: (p) => outcome !== 'main' || p < 4.0 || !!snag,
       x: () => slot.x,
       update(p, { wall, outcome }) {
         lastP = p;
@@ -114,9 +134,16 @@ export default defineStory({
         const r = free ? rise(p) : 0;
         if (free) centre.set(hand.x + 0.15 * p + Math.sin(wall * 0.9) * 0.08, hand.y + 1.3 + r, slot.z);
         else centre.set(hand.x + tug, hand.y + 1.3, slot.z);
+        if (snag && p > SNAG_FROM) {
+          // Drawn off toward the crane, then caught by the strings under the jib.
+          const u = smooth(seg(p, SNAG_FROM, SNAG_AT));
+          const hang = vec(snag.x + Math.sin(wall * 1.2) * 0.12, snag.y - 1.1, snag.z);
+          centre.lerp(hang, u);
+        }
         if (!free) gather.copy(hand);
         else {
           tied.set(centre.x, centre.y - 1.1, slot.z + 0.2);
+          if (snag && p > SNAG_AT - 0.3) tied.lerp(snag, smooth(seg(p, SNAG_AT - 0.3, SNAG_AT)));
           gather.lerpVectors(hand, tied, smooth(seg(p, 0, 0.3)));
           if (p > 0.3) gather.copy(tied);
         }

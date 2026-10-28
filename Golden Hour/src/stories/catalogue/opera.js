@@ -35,7 +35,7 @@ export default defineStory({
       },
     },
     crack: {
-      tags: ['oops'],
+      tags: ['oops', 'falling'],
       captions: {
         peak: "{singer}'s high note cracked the glass.",
         near: '{singer}, taking a big breath.',

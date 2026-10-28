@@ -12,6 +12,7 @@ export default defineStory({
   slot: 'horizon',
   window: [7.5, 14.5],
   dur: 1.0,
+  tags: ['wheels'],
   cast: { driver: {} },
   outcomes: {
     main: {

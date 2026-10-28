@@ -9,9 +9,13 @@
  *     window: [2.4, 6.0],          // when the peak can happen (seconds into the run)
  *     dur: 0.8,                    // how long the peak lasts
  *     cast: { ada: { kid: true } },// roles, filled by tonight's residents
+ *     tags: ['wheels'],            // optional: added to every outcome's tags
  *     outcomes: {
  *       main: { weight: 2, tags: ['air'], captions: { peak, near, after, idle } },
- *       alt:  { weight: 1, tags: ['oops'], captions: { … } },
+ *       alt:  { weight: 1, tags: ['oops'], captions: { … },
+ *               // optional: this outcome throws something that can land in another story.
+ *               // lands: seconds after the peak; kinds: 'hand' | 'head' | 'mouth'.
+ *               throws: { lands: 1.3, kinds: ['head'], caption: '{target} has a new hat.' } },
  *     },
  *     create(ctx) {                // build meshes once per evening; ctx.tonight lists tonight's story ids
  *       return {
@@ -19,14 +23,20 @@
  *         update(p, f) { … },           // p = t − peak; f = { wall, dt, outcome }
  *         x: () => number,              // optional: where it is, for the audio pan
  *         visible: (p) => boolean,      // optional: when it can be photographed
+ *         thrown: object3D,             // optional: the prop that ctx.cross sends to a target
  *       };
  *     },
  *   })
  *
  * Captions may use {role} for a resident's first name or {role.last} for their surname.
+ *
+ * Crossovers: when the director pairs a throwing outcome with another story tonight,
+ * ctx.cross.active is true. The story then flies its prop to ctx.cross.point() (a hand, a
+ * head or a mouth in the other story), calls ctx.cross.land() when it arrives, and keeps the
+ * prop at ctx.cross.point() afterwards.
  */
 
-export const RARITY_CHANCE = { common: 1, rare: 0.3, legendary: 0.02 };
+export const RARITY_CHANCE = { common: 1, rare: 0.3, legendary: 0.03 };
 
 const KINDS = ['peak', 'near', 'after', 'idle'];
 
@@ -43,7 +53,11 @@ export function defineStory(def) {
   for (const [name, o] of Object.entries(def.outcomes)) {
     for (const k of KINDS) if (typeof o.captions?.[k] !== 'string') fail(`outcome "${name}" is missing captions.${k}`);
     o.weight ??= name === 'main' ? 2 : 1;
-    o.tags ??= [];
+    o.tags = [...new Set([...(o.tags ?? []), ...(def.tags ?? [])])];
+    if (o.throws) {
+      const t = o.throws;
+      if (!(t.lands > 0) || !t.kinds?.length || typeof t.caption !== 'string') fail(`outcome "${name}" throws needs lands, kinds and caption`);
+    }
   }
   return {
     rarity: 'common',
@@ -52,6 +66,20 @@ export function defineStory(def) {
     ...def,
     slots: Array.isArray(def.slot) ? def.slot : [def.slot],
   };
+}
+
+/** What a story's cast can catch: people take things in a hand or on the head, dogs in the mouth, cats on the head. */
+export function offersOf(story) {
+  const kinds = new Set();
+  for (const spec of Object.values(story.cast)) {
+    if (spec.kind === 'dog') kinds.add('mouth');
+    else if (spec.kind === 'cat') kinds.add('head');
+    else {
+      kinds.add('hand');
+      kinds.add('head');
+    }
+  }
+  return kinds;
 }
 
 /** Weighted pick of tonight's outcome. */

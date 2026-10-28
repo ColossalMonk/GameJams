@@ -64,10 +64,10 @@ export class Album {
         score.className = 'score';
         score.textContent = photo.dataUrl ? `${photo.score}` : '';
         card.append(frame, caption, score);
-        if (photo.rare) {
+        if (photo.legendary || photo.rare) {
           const sticker = document.createElement('span');
-          sticker.className = 'sticker';
-          sticker.textContent = 'rare';
+          sticker.className = photo.legendary ? 'sticker legendary' : 'sticker';
+          sticker.textContent = photo.legendary ? 'legendary' : 'rare';
           card.prepend(sticker);
         }
         return card;

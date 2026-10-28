@@ -24,7 +24,7 @@ export default defineStory({
       },
     },
     gull: {
-      tags: ['animal', 'air', 'oops'],
+      tags: ['animal', 'air', 'oops', 'falling'],
       captions: {
         peak: "A gull took {b}'s sandwich.",
         near: "{b}'s sandwich, slipping.",

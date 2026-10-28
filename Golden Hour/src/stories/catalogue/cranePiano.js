@@ -20,7 +20,7 @@ export default defineStory({
   cast: { worker: { dress: false, look: { top: '#f08a3c' } } },
   outcomes: {
     main: {
-      tags: ['air', 'joy'],
+      tags: ['air', 'joy', 'finally'],
       captions: {
         peak: '{worker} guided the piano home.',
         near: '{worker}, waving the piano in.',
@@ -38,7 +38,7 @@ export default defineStory({
       },
     },
     drop: {
-      tags: ['oops'],
+      tags: ['oops', 'falling'],
       captions: {
         peak: "{worker}'s piano went plonk.",
         near: 'The piano, leaving the rope.',

@@ -12,7 +12,7 @@ export default defineStory({
   cast: { asker: {}, answer: {} },
   outcomes: {
     main: {
-      tags: ['love', 'joy'],
+      tags: ['love', 'joy', 'finally'],
       captions: {
         peak: '{answer} said yes.',
         near: '{asker}, down on one knee.',

@@ -12,7 +12,7 @@ export default defineStory({
   cast: { elder: { old: true }, kid: { kid: true } },
   outcomes: {
     main: {
-      tags: ['joy'],
+      tags: ['joy', 'finally'],
       captions: {
         peak: '{elder}, ninety today, every candle in one go.',
         near: '{elder}, taking a deep breath.',

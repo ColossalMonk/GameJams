@@ -27,9 +27,10 @@ export default defineStory({
         after: '{dog}, pretending that was the plan.',
         idle: '{dog}, waiting patiently.',
       },
+      throws: { lands: 0.95, kinds: ['hand'], caption: "{target} caught {dog}'s frisbee.", after: "{target}, keeping {dog}'s frisbee." },
     },
   },
-  create({ slot, person, dog: makeDog, add, group }) {
+  create({ slot, person, dog: makeDog, add, group, cross }) {
     const fz = slot.z;
     const throwerX = slot.x - 1.8;
     const dogX = slot.x + 1.7;
@@ -63,9 +64,11 @@ export default defineStory({
     const throwFrom = vec(throwerX + 0.75, 1.15, fz + 0.12);
     const missPoint = vec(dogX + 1.7, 0.06, fz + 0.35);
     const missFlight = 1.3;
+    const end = vec();
 
     return {
       focus: () => [dog.root],
+      thrown: frisbee,
       update(p, { wall, outcome }) {
         const alt = outcome === 'alt';
         const wind = smooth(seg(p, -1.1, -0.45));
@@ -92,9 +95,15 @@ export default defineStory({
           frisbee.rotation.z = 0;
         } else if (alt) {
           const u = seg(p, release, release + missFlight);
-          frisbee.position.lerpVectors(throwFrom, missPoint, u);
+          if (cross?.active) cross.point(end);
+          else end.copy(missPoint);
+          frisbee.position.lerpVectors(throwFrom, end, u);
           frisbee.position.y += Math.sin(Math.PI * u) * 1.9;
           frisbee.rotation.z = u < 1 ? -0.2 : 0;
+          if (u >= 1 && cross?.active) {
+            cross.land();
+            frisbee.position.z += 0.06;
+          }
         } else if (p < catchAt) {
           const u = seg(p, release, catchAt);
           frisbee.position.lerpVectors(throwFrom, catchPoint, u);

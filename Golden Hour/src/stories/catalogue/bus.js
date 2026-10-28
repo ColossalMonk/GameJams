@@ -47,6 +47,7 @@ export default defineStory({
   slot: 'road',
   window: [5.5, 13.5],
   dur: 0.9,
+  tags: ['wheels'],
   cast: { driver: {}, a: {}, b: { kid: true }, c: { old: true } },
   outcomes: {
     main: {

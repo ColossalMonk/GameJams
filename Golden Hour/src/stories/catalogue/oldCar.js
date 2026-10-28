@@ -9,10 +9,11 @@ export default defineStory({
   slot: 'kerb',
   window: [8.0, 12.0],
   dur: 0.8,
+  tags: ['wheels'],
   cast: { driver: { old: true, dress: false } },
   outcomes: {
     main: {
-      tags: ['joy'],
+      tags: ['joy', 'finally'],
       captions: {
         peak: '{driver} finally got it running.',
         near: '{driver}, one more try.',

@@ -27,9 +27,10 @@ export default defineStory({
         after: "{player}'s hat, gone forever.",
         idle: '{player}, playing for the whole street.',
       },
+      throws: { lands: 1.3, kinds: ['head'], caption: '{target} has a new hat.', after: "{target}, wearing {player}'s hat." },
     },
   },
-  create({ slot, person, group }) {
+  create({ slot, person, group, cross }) {
     const lou = person('player', slot.x, 0, slot.z, 'L');
     const guitar = makeGuitar();
     guitar.position.set(0.1, 0.18, 0.08);
@@ -42,9 +43,11 @@ export default defineStory({
     const dur = 0.7;
     const flight = 1.3;
     let from = null;
+    const end = vec();
 
     return {
       focus: () => [lou.root],
+      thrown: hat,
       update(p, { wall, outcome }) {
         const alt = outcome === 'alt';
         const build = seg(p, -1.2, 0);
@@ -86,9 +89,15 @@ export default defineStory({
         } else {
           from ??= top.clone();
           const q = seg(p, 0, flight);
-          hat.position.lerpVectors(from, landing, q);
-          hat.position.y += 4 * q * (1 - q) * 1.5;
-          hat.rotation.z = q < 1 ? q * Math.PI * 5 : 0.25;
+          if (cross?.active) {
+            cross.point(end);
+            end.y -= 0.05;
+            end.z += 0.03;
+          } else end.copy(landing);
+          hat.position.lerpVectors(from, end, q);
+          hat.position.y += 4 * q * (1 - q) * (1.5 + 0.1 * from.distanceTo(end));
+          hat.rotation.z = q < 1 ? q * Math.PI * 5 : cross?.active ? 0.15 : 0.25;
+          if (q >= 1 && cross?.active) cross.land();
         }
       },
     };

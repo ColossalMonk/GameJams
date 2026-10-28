@@ -50,12 +50,10 @@ function thirds(b, f, size) {
 
 const KIND_POINTS = { peak: 500, near: 160, after: 90, idle: 60 };
 
-/** Rare moments (balloon, paper plane, fireworks) are worth more. */
-const RARE_BONUS = 1.5;
 
 /**
  * Score a photo from what was inside the viewfinder at the moment it was taken.
- * Returns { score, caption, kind, tags, people, sunInside, rare }; the extra fields are what
+ * Returns { score, caption, kind, tags, people, sunInside, rare, legendary }; the extra fields are what
  * the evening's request checks.
  */
 export function scorePhoto({ t, rect, stage, cast }) {
@@ -66,6 +64,7 @@ export function scorePhoto({ t, rect, stage, cast }) {
   const candidates = [];
   const tags = new Set();
   let rare = false;
+  let legendary = false;
   let points = 0;
 
   for (const m of cast.moments) {
@@ -81,10 +80,10 @@ export function scorePhoto({ t, rect, stage, cast }) {
     else if (p >= -0.5 && p < 0) kind = 'near';
     else if (p > m.dur) kind = 'after';
     let pts = KIND_POINTS[kind] * framing + thirds(u, f, rect.size);
-    if (m.rare) {
-      pts *= RARE_BONUS;
-      rare = true;
-    }
+    // Rare and legendary stories, and crossovers, are worth more (see Show.js).
+    pts *= m.bonus ?? 1;
+    if (m.rarity === 'legendary') legendary = true;
+    else if (m.rare) rare = true;
     if (kind === 'peak' || kind === 'after') for (const tag of m.tags) tags.add(tag);
     points += pts;
     candidates.push({ pts, caption: m.caption(kind), kind });
@@ -130,5 +129,5 @@ export function scorePhoto({ t, rect, stage, cast }) {
     caption = t > 15 ? 'The sun, filling the whole sky.' : 'The sun, closer than ever.';
     kind = 'sun';
   }
-  return { score, caption, kind, tags: [...tags], people, sunInside, rare };
+  return { score, caption, kind, tags: [...tags], people, sunInside, rare, legendary };
 }

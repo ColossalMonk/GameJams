@@ -4,15 +4,25 @@
  */
 export const REQUEST_BONUS = 600;
 
-const byTag = (tag) => (photos) => photos.some((p) => p.tags?.includes(tag));
+/** A request met by any photo whose subject carries the tag. Only offered when tonight has one. */
+const byTag = (id, tag, text) => ({
+  id,
+  text,
+  test: (photos) => photos.some((p) => p.tags?.includes(tag)),
+  needs: (show) => show.moments.some((m) => m.tags.includes(tag)),
+});
 
 const REQUESTS = [
-  { id: 'air', text: 'Something in the air', test: byTag('air') },
-  { id: 'love', text: 'Love at the end of the world', test: byTag('love') },
-  { id: 'animal', text: 'A very good animal', test: byTag('animal') },
-  { id: 'joy', text: 'Someone celebrating', test: byTag('joy') },
-  { id: 'oops', text: 'Something going wrong', test: byTag('oops'), needs: (show) => show.moments.some((m) => m.tags.includes('oops')) },
-  { id: 'rare', text: "Something you won't see every evening", test: byTag('rare'), needs: (show) => show.moments.some((m) => m.rare) },
+  byTag('air', 'air', 'Something in the air'),
+  byTag('love', 'love', 'Love at the end of the world'),
+  byTag('animal', 'animal', 'A very good animal'),
+  byTag('joy', 'joy', 'Someone celebrating'),
+  byTag('oops', 'oops', 'Something going wrong'),
+  byTag('rare', 'rare', "Something you won't see every evening"),
+  byTag('wheels', 'wheels', 'Something on wheels'),
+  byTag('finally', 'finally', 'Someone finally finishing something'),
+  byTag('falling', 'falling', 'Something falling'),
+  byTag('crossover', 'crossover', 'One story landing in another'),
   { id: 'crowd', text: 'Three people in one shot', test: (photos) => photos.some((p) => p.people >= 3) },
   { id: 'sun', text: 'The sun, as big as it gets', test: (photos) => photos.some((p) => p.sunInside && p.t > 15) },
 ];

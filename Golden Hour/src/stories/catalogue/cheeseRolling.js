@@ -23,6 +23,7 @@ export default defineStory({
   slot: 'hill',
   window: [3.0, 13.0],
   dur: 0.9,
+  tags: ['wheels'],
   cast: { a: {}, b: {}, c: { kid: true } },
   outcomes: {
     main: {

@@ -14,6 +14,7 @@ export default defineStory({
   slot: ['road', 'window'],
   window: [6.5, 13.5],
   dur: 1.0,
+  tags: ['wheels'],
   cast: { firefighter: { dress: false, look: { top: '#c8423a', bottom: '#2f2a30' } }, cat: { kind: 'cat' } },
   outcomes: {
     main: {

@@ -189,7 +189,7 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
   - Export the lamp-post positions from `Town.js`, so stories don't hard-code them.
   - Dispose per-evening textures in `Show.dispose`.
 
-### Phase 2 — Crossovers, rarity and requests (Nov 3 – 4, ~2 days)
+### Phase 2 — Crossovers, rarity and requests (Nov 3 – 4, ~2 days) — ✅ done 2026-10-28
 
 1. **Landing system**: throwable props, landing points, reaction poses, crossover captions.
 2. **Chain events**: bell → pigeons, balloons → crane, banner text ← proposal or wedding.
@@ -197,6 +197,21 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
 4. **More requests** using new tags: "Something on wheels", "Someone finally finishing something", "A crossover" (two stories in one photo), "Something falling".
 
 *Done when:* in 50 seeded evenings, ≥ 60% contain at least one crossover and none have two stories fighting over a slot.
+
+*Status:* done. In 300 seeded evenings, 65% have a crossover or chain event, with no slot clashes.
+- **Throws:** five outcomes throw (the bouquet, a missed frisbee, the musician's lost hat, the flying sheet, the runaway flag).
+  - An outcome declares `throws: { lands, kinds, caption }`.
+  - The director pairs it with a story nearby whose peak is clear of the landing.
+  - `Show` points the throw's `ctx.cross` at a hand, head or mouth, makes the target react, and adds the landing as a moment worth ×1.3.
+- **Chains:**
+  - bell → rooftop pigeons
+  - balloons → crane
+  - banner says MARRY ME when a proposal or wedding is on
+- **Story-added moments:** stories can add extra photo moments with `ctx.moment()`.
+- **Rarity:** legendary tier (3%, ×2, rainbow sticker), with two legendary stories: a UFO and a whale cloud.
+- **New tags and requests:** `wheels`, `finally` and `falling` tags, and requests for them plus "One story landing in another". Every tag request is only offered when tonight can satisfy it.
+- **Checks:** `tools/selftest.mjs` checks every throw against every kind of target, and both chains.
+- **Tool:** `tools/find-evening.mjs` finds evenings with a given story or a crossover.
 
 ### Phase 3 — Art pass (Nov 5 – 7, ~3 days)
 

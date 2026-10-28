@@ -23,7 +23,7 @@ export default defineStory({
       },
     },
     topple: {
-      tags: ['oops'],
+      tags: ['oops', 'falling'],
       captions: {
         peak: '{a} wobbles, and down they all go.',
         near: '{a}, wobbling a little.',

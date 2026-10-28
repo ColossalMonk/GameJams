@@ -13,7 +13,7 @@ export default defineStory({
   cast: { kid: { kid: true } },
   outcomes: {
     main: {
-      tags: ['air', 'joy'],
+      tags: ['air', 'joy', 'finally'],
       captions: {
         peak: "{kid}'s kite, finally up.",
         near: '{kid}, running flat out.',
@@ -22,7 +22,7 @@ export default defineStory({
       },
     },
     alt: {
-      tags: ['air', 'oops'],
+      tags: ['air', 'oops', 'falling'],
       captions: {
         peak: "{kid}'s kite, briefly.",
         near: '{kid}, running flat out.',
