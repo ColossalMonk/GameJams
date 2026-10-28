@@ -6,7 +6,7 @@ const box = new THREE.Box3();
 const corner = new THREE.Vector3();
 
 /** Screen-space bounding rectangle (CSS px) of an object, from its 3D bounding box. */
-function screenBox(object, camera, w, h) {
+export function screenBox(object, camera, w, h) {
   box.setFromObject(object);
   let x0 = Infinity;
   let y0 = Infinity;
@@ -33,7 +33,7 @@ function coverage(b, f) {
   return (iw * ih) / area;
 }
 
-function union(boxes) {
+export function union(boxes) {
   return boxes.reduce((u, b) => ({
     x0: Math.min(u.x0, b.x0),
     y0: Math.min(u.y0, b.y0),
@@ -85,9 +85,9 @@ export function scorePhoto({ t, rect, stage, cast }) {
       pts *= RARE_BONUS;
       rare = true;
     }
-    if (kind === 'peak' || kind === 'after') for (const tag of m.tags[m.variant]) tags.add(tag);
+    if (kind === 'peak' || kind === 'after') for (const tag of m.tags) tags.add(tag);
     points += pts;
-    candidates.push({ pts, caption: m.captions[m.variant][kind], kind });
+    candidates.push({ pts, caption: m.caption(kind), kind });
   }
 
   const people = cast.people.filter((person) => coverage(screenBox(person.object, camera, w, h), f) >= 0.7).length;

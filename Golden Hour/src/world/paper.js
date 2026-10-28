@@ -10,6 +10,8 @@ let fibreTexture = null;
 /** Procedural paper texture: fine grain plus faint fibres. Shared by every card. */
 export function paperTexture() {
   if (fibreTexture) return fibreTexture;
+  // Headless (the Node self-test): no canvas, so use a blank texture.
+  if (typeof document === 'undefined') return (fibreTexture = new THREE.Texture());
   const size = 512;
   const c = document.createElement('canvas');
   c.width = c.height = size;

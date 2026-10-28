@@ -4,7 +4,7 @@ Entry for the [20 Second Game Jam 2026](https://itch.io/jam/20-second-game-jam-2
 
 > The sun is swelling and Earth has 20 seconds left. Nobody is panicking. The town is out for one last perfect evening, and you're the photographer with five shots left on the roll.
 
-**Status:** first playable. The whole loop works (title → 20s run → album → replay), with all 9 moments, scoring, captions, sound and the PNG export. Next is playtesting and tuning.
+**Status:** Roadmap Phase 1 is done. The town now runs on a story system: 28 stories in a catalogue, 8–10 chosen per evening by a director, with generated townspeople and a street rebuilt each evening. The fixed cast described below was the first playable; see [ROADMAP.md](ROADMAP.md) for the current plan.
 
 ## Jam rules that affect design
 

@@ -2,8 +2,11 @@ import * as THREE from 'three';
 import { Stage3D } from './core/Stage3D.js';
 import { Viewfinder } from './core/Viewfinder.js';
 import { Sky } from './world/Sky.js';
-import { Town } from './world/Town.js';
-import { Cast } from './characters/Cast.js';
+import { Town, SLOTS } from './world/Town.js';
+import { Facades } from './world/Facades.js';
+import { Show } from './stories/Show.js';
+import { STORIES, usesSite } from './stories/registry.js';
+import { planEvening } from './director/Director.js';
 import { Particles } from './characters/Particles.js';
 import { scorePhoto } from './game/Scoring.js';
 import { HUD } from './ui/HUD.js';
@@ -20,9 +23,8 @@ const sky = new Sky(stage.scene);
 const town = new Town(stage.scene);
 const particles = new Particles(stage.scene);
 const audio = new Audio();
-const cast = new Cast(stage.scene, particles, {
-  onCue: (kind, m) => audio.cue(kind, typeof m.x === 'function' ? m.x() : m.x),
-});
+const facades = new Facades(stage.scene, town.windowGlow);
+const show = new Show(stage.scene, particles, { onCue: (kind, m) => audio.cue(kind, m.x()) });
 const hud = new HUD();
 const album = new Album();
 const viewfinder = new Viewfinder(app, document.getElementById('viewfinder'), { onShoot: requestShot });
@@ -41,17 +43,28 @@ let requestDone = false;
 
 const PHOTO_SIZE = 512;
 
+const params = new URLSearchParams(location.search);
+
 /**
- * Every run is a numbered evening. The number seeds where the sun sets, the clouds, when
- * each moment happens and how it turns out, which rare events show up, and the request.
- * ?evening=123 in the URL picks a specific one.
+ * Every run is a numbered evening. The number seeds where the sun sets, the street's
+ * houses, which stories happen and where, who is in them, how they turn out, when they
+ * peak, the clouds, and the request. ?evening=123 in the URL picks a specific one.
+ *
+ * options.only / options.outcome / options.peak force stories for the gallery tool.
  */
-function prepareEvening(number) {
+function prepareEvening(number, options = {}) {
   evening = new Evening(number);
   setSunX(evening.range(-5, 7));
+  const plan = planEvening(evening, { stories: STORIES, slots: SLOTS, only: options.only });
+  for (const item of plan) {
+    if (options.outcome && item.story.outcomes[options.outcome]) item.outcome = options.outcome;
+    if (options.peak != null) item.peak = options.peak;
+  }
+  facades.build(evening, { site: usesSite(plan) });
+  show.load(plan, evening, { site: facades.site });
+  particles.clear();
   town.reseed(evening);
-  cast.reset(evening);
-  request = pickRequest(evening, cast);
+  request = pickRequest(evening, show);
   requestDone = false;
   hud.setRequest(evening.number, request.text);
 }
@@ -101,7 +114,7 @@ function capture(rect) {
 
 function takePhoto(rect) {
   const dataUrl = capture(rect);
-  const result = scorePhoto({ t, rect, stage, cast });
+  const result = scorePhoto({ t, rect, stage, cast: show });
   photos.push({ dataUrl, ...result, t });
   hud.shot(photos.length - 1, dataUrl);
   audio.shutter();
@@ -144,7 +157,31 @@ window.addEventListener('keydown', (e) => {
   else if (state === 'album' && wall > albumAt + 0.4) begin('new');
 });
 
-prepareEvening(Number(new URLSearchParams(location.search).get('evening')) || randomEveningNumber());
+const firstEvening = Number(params.get('evening')) || randomEveningNumber();
+if (params.has('story')) {
+  // Gallery tool: ?story=kite[,crane]&outcome=alt&peak=6
+  state = 'gallery';
+  const gallery = {
+    only: params.get('story').split(','),
+    outcome: params.get('outcome'),
+    peak: params.has('peak') ? Number(params.get('peak')) : 6,
+  };
+  prepareEvening(firstEvening, gallery);
+  import('./tools/gallery.js').then(({ startGallery }) =>
+    startGallery({
+      stage,
+      show,
+      stories: STORIES,
+      options: gallery,
+      evening: () => evening,
+      prepare: (o) => prepareEvening(evening.number, o),
+      getTime: () => t,
+      setTime: (v) => (t = v),
+    }),
+  );
+} else {
+  prepareEvening(firstEvening);
+}
 
 // ── Main loop ──
 const clock = new THREE.Clock();
@@ -155,7 +192,7 @@ function frame() {
 
   sky.update(t);
   town.update(dt, wall);
-  cast.update(t, dt, wall);
+  show.update(t, dt, wall);
   particles.update(dt);
   stage.setParallax(state === 'playing' ? viewfinder.nx : 0);
   if (state === 'playing') {
@@ -178,4 +215,4 @@ requestAnimationFrame(frame);
 app.classList.add('menu');
 
 // Debug hook for development.
-window.__golden = { stage, cast, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };
+window.__golden = { stage, show, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };

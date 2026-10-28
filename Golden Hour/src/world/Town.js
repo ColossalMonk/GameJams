@@ -2,33 +2,51 @@ import * as THREE from 'three';
 import { card, place, glowMaterial } from './paper.js';
 import { rect, roundRect, circle, poly, cloud, hill, ellipse } from './shapes.js';
 
-/**
- * Where everyone and everything stands. Cast.js reads this so characters line up with
- * the buildings they belong to.
- */
+/** Where Elm Street's fixed buildings stand. */
 export const LAYOUT = {
-  church: { x: -9.4, z: -5.8 },
-  wedding: { x: -9.4, z: -4.3 },
+  church: { x: -9.4, z: -5.8, h: 3.3 },
   wall: { x0: -7.5, x1: -4.9, z: -2.9, h: 1.45 },
-  cat: { x: -5.7 },
   apartment: { x: -3.2, z: -5.6, w: 2.9, h: 6.2 },
-  rooftop: { y: 6.28, z: -5.05, a: -3.75, b: -2.85 },
   cafe: { x: -0.2, z: -3.6 },
   table: { x: -0.4, z: -1.9 },
-  car: { x: 3.9, z: -1.1 },
-  oldMan: { x: 2.25, z: -0.9 },
   hill: { z: -6.8 },
-  kiteKid: { x: 9.6 },
-  musician: { x: -7.6, z: 1.5 },
-  proposal: { a: -2.1, b: -1.2, z: 1.7 },
-  frisbee: { thrower: 5.8, dog: 9.3, z: 1.3 },
 };
 
-/** Height of the near hill at x (the kite kid stands on it). */
+/** Height of the near hill at x. */
 export function hillHeight(x) {
   const u = THREE.MathUtils.smoothstep(x, 3.2, 10.5);
   return 3.2 * u + 0.18 * Math.sin(x * 1.3) * u;
 }
+
+/**
+ * Places in Elm Street where a story can happen. The director gives each of tonight's
+ * stories a free slot of the type it asks for. x/y/z is the slot's anchor; each story
+ * arranges itself around it.
+ */
+export const SLOTS = [
+  { id: 'hill', type: 'hill', x: 9.6, y: hillHeight(9.6), z: LAYOUT.hill.z + 0.25 },
+  { id: 'park', type: 'park', x: 7.6, y: 0, z: 1.3 },
+  { id: 'pav1', type: 'pavement', x: -8.0, y: 0, z: 1.5 },
+  { id: 'pav2', type: 'pavement', x: -5.0, y: 0, z: 1.6 },
+  { id: 'pav3', type: 'pavement', x: -1.8, y: 0, z: 1.7 },
+  { id: 'pav4', type: 'pavement', x: 1.5, y: 0, z: 1.6 },
+  { id: 'cafe', type: 'cafe', x: LAYOUT.table.x, y: 0, z: LAYOUT.table.z },
+  { id: 'church', type: 'church', x: LAYOUT.church.x, y: 0, z: -4.3 },
+  { id: 'tower', type: 'tower', x: LAYOUT.church.x, y: LAYOUT.church.h + 1.7, z: LAYOUT.church.z - 0.15 },
+  { id: 'wall', type: 'wall', x: -5.7, y: LAYOUT.wall.h + 0.12, z: LAYOUT.wall.z + 0.12 },
+  { id: 'roof', type: 'rooftop', x: -3.3, y: LAYOUT.apartment.h + 0.08, z: -5.05 },
+  { id: 'kerb', type: 'kerb', x: 3.9, y: 0, z: -1.1 },
+  { id: 'road', type: 'road', x: 0, y: 0, z: -0.45 },
+  { id: 'win1', type: 'window', x: -4.05, y: 3.2, z: LAYOUT.apartment.z + 0.06 },
+  { id: 'win2', type: 'window', x: -2.29, y: 4.15, z: LAYOUT.apartment.z + 0.06 },
+  { id: 'site1', type: 'site', x: 2.6, y: 0, z: -7.1 },
+  { id: 'site2', type: 'site', x: 2.6, y: 0, z: -7.1 },
+  { id: 'horizon', type: 'horizon', x: 0, y: 0, z: -9.8 },
+  { id: 'sky1', type: 'sky', x: 0, y: 8, z: -8.4 },
+  { id: 'sky2', type: 'sky', x: 0, y: 8, z: -8.4 },
+  { id: 'low', type: 'lowsky', x: 0, y: 3.4, z: 2.4 },
+  { id: 'far', type: 'farsky', x: 2, y: 6.5, z: -7.0 },
+];
 
 const C = {
   ground: '#e6d2ab',
@@ -58,7 +76,6 @@ const C = {
   bird: '#3a3340',
 };
 
-const HOUSE_COLOURS = ['#e9b98f', '#c9a4c4', '#f0d58c', '#d98c6b', '#a8c8b0', '#e7c7a9'];
 
 function floorCard(shape, color, y) {
   const m = card(shape, color, { depth: 0.04 });
@@ -68,7 +85,7 @@ function floorCard(shape, color, y) {
   return m;
 }
 
-function windowGrid(parent, x0, y0, cols, rows, w, h, gapX, gapY, z, glow) {
+export function windowGrid(parent, x0, y0, cols, rows, w, h, gapX, gapY, z, glow) {
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const lit = Math.random() < 0.75;
@@ -79,7 +96,7 @@ function windowGrid(parent, x0, y0, cols, rows, w, h, gapX, gapY, z, glow) {
   }
 }
 
-function tree(parent, x, z, size = 1, alt = false) {
+export function tree(parent, x, z, size = 1, alt = false) {
   const g = new THREE.Group();
   place(g, card(rect(-0.09 * size, 0, 0.18 * size, 1.3 * size), C.trunk), 0, 0, 0);
   place(g, card(circle(0, 0, 0.75 * size), alt ? C.leavesAlt : C.leaves), 0, 1.6 * size, 0.05);
@@ -89,21 +106,13 @@ function tree(parent, x, z, size = 1, alt = false) {
   return g;
 }
 
-function house(parent, x, z, w, h, color, glow) {
-  const g = new THREE.Group();
-  place(g, card(rect(-w / 2, 0, w, h), color), 0, 0, 0);
-  place(g, card(poly([[-w / 2 - 0.15, h], [w / 2 + 0.15, h], [0, h + w * 0.42]]), Math.random() < 0.5 ? C.roof : C.roofPlum), 0, 0, 0.02);
-  windowGrid(g, -w / 2 + 0.3, h * 0.45, 2, 1, 0.38, 0.45, w - 1.36, 0.3, 0.05, glow);
-  g.position.set(x, 0, z);
-  parent.add(g);
-}
-
 export class Town {
   constructor(scene) {
     this.group = new THREE.Group();
     scene.add(this.group);
     const g = this.group;
     const windowGlow = glowMaterial('#6d7b92', '#ffc76b');
+    this.windowGlow = windowGlow;
     const warmGlow = glowMaterial('#f6e3b0', '#ffb347');
 
     // ── Ground: back pavement, street, front pavement, park grass ──
@@ -116,9 +125,7 @@ export class Town {
     place(g, card(hill(-26, 26, (x) => 2.2 + 0.9 * Math.sin(x * 0.32 + 1) + 0.5 * Math.sin(x * 0.9)), C.hillFarther, { depth: 0.05 }), 0, 0, -10.4);
     place(g, card(hill(-26, 26, (x) => 1.3 + 0.7 * Math.sin(x * 0.45 + 2.4) + 0.3 * Math.sin(x * 1.4)), C.hillFar, { depth: 0.05 }), 0, 0, -9.2);
 
-    // ── Background houses (low, so the sun stays visible above them) ──
-    const houses = [[-1.6, 2.4], [0.2, 2.9], [1.9, 2.2], [3.5, 3.1], [5.1, 2.5]];
-    houses.forEach(([x, h], i) => house(g, x, -7.4, 1.5, h, HOUSE_COLOURS[i % HOUSE_COLOURS.length], windowGlow));
+    // Background houses are rebuilt every evening by Facades.js.
 
     // ── Near hill on the right (kite kid stands on top) ──
     place(g, card(hill(2.4, 16, hillHeight, 60), C.hillNear, { depth: 0.06 }), 0, 0, LAYOUT.hill.z - 0.1);

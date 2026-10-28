@@ -9,7 +9,7 @@ import {
   ToneMappingEffect,
   ToneMappingMode,
 } from 'postprocessing';
-import { VIEW_BOX } from '../config.js';
+import { fitCamera } from './framing.js';
 
 /**
  * Renderer, camera and post-processing. The camera is fixed (a paper theatre seen from
@@ -76,18 +76,7 @@ export class Stage3D {
 
   /** Back the camera off until all of VIEW_BOX is visible. */
   fit() {
-    const cam = this.camera;
-    const halfW = (VIEW_BOX.right - VIEW_BOX.left) / 2;
-    const halfH = (VIEW_BOX.top - VIEW_BOX.bottom) / 2;
-    const cx = (VIEW_BOX.right + VIEW_BOX.left) / 2;
-    const vTan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
-    const hTan = vTan * cam.aspect;
-    const d = Math.max(halfW / hTan, halfH / vTan);
-    // Any spare height goes to the sky rather than the pavement.
-    const visibleHalfH = d * vTan;
-    this.target.set(cx, VIEW_BOX.bottom + visibleHalfH, 0);
-    this.basePosition.set(cx, this.target.y + d * 0.07, d);
-    cam.updateProjectionMatrix();
+    fitCamera(this.camera, this.target, this.basePosition);
     this.applyCamera();
   }
 
