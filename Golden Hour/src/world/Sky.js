@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { card, paperTexture, glowMaterials } from './paper.js';
+import { paperTexture, glowMaterials } from './paper.js';
 import { circle } from './shapes.js';
 import { GAME_LENGTH } from '../config.js';
 
@@ -9,18 +9,18 @@ import { GAME_LENGTH } from '../config.js';
  * keyframe here, sampled by time.
  */
 const KEYS = [
-  { t: 0, top: '#5f9fd6', horizon: '#ffe6b8', glow: '#fff1c4', sun: '#fff3cf', light: '#fff1dc', intensity: 3.2, height: 17, hemiSky: '#bcd6f0', hemiGround: '#e9cfa0', hemi: 0.55, lamps: 0 },
-  { t: 4, top: '#6c9ad2', horizon: '#ffd590', glow: '#ffdf96', sun: '#ffeab0', light: '#ffe6b8', intensity: 3.2, height: 14, hemiSky: '#c9cfe8', hemiGround: '#e0bf8c', hemi: 0.55, lamps: 0 },
-  { t: 7.5, top: '#9a8ac6', horizon: '#ffbd78', glow: '#ffc878', sun: '#ffd890', light: '#ffcf8a', intensity: 3.3, height: 11, hemiSky: '#d6bfe0', hemiGround: '#c9a07a', hemi: 0.52, lamps: 0.2 },
-  { t: 11, top: '#d27f9c', horizon: '#ffa25e', glow: '#ffb466', sun: '#ffc678', light: '#ffb06a', intensity: 3.4, height: 8, hemiSky: '#e8a8a8', hemiGround: '#9e7468', hemi: 0.5, lamps: 0.9 },
-  { t: 14, top: '#9a4a7c', horizon: '#ff7c4c', glow: '#ff9a5a', sun: '#ffb070', light: '#ff9a5e', intensity: 3.5, height: 6, hemiSky: '#d98aa0', hemiGround: '#6e4a62', hemi: 0.5, lamps: 1.4 },
-  { t: 17, top: '#5a2a5c', horizon: '#ff5c34', glow: '#ffa060', sun: '#ffd29a', light: '#ff9a68', intensity: 3.8, height: 4.5, hemiSky: '#f0907e', hemiGround: '#5a3a56', hemi: 0.6, lamps: 1.6 },
-  { t: 18.6, top: '#ffd9a8', horizon: '#fff0d0', glow: '#ffffff', sun: '#fff8ea', light: '#ffe6c8', intensity: 5, height: 4.5, hemiSky: '#fff0e0', hemiGround: '#ffe0c0', hemi: 1.6, lamps: 1.6 },
-  { t: GAME_LENGTH, top: '#ffffff', horizon: '#ffffff', glow: '#ffffff', sun: '#ffffff', light: '#ffffff', intensity: 8, height: 4.5, hemiSky: '#ffffff', hemiGround: '#ffffff', hemi: 3.2, lamps: 1.6 },
+  { t: 0, top: '#5f9fd6', horizon: '#ffe6b8', glow: '#fff1c4', sun: '#fff3cf', light: '#fff1dc', intensity: 3.2, height: 17, hemiSky: '#bcd6f0', hemiGround: '#e9cfa0', hemi: 0.55, lamps: 0, rays: 0.13, stars: 0 },
+  { t: 4, top: '#6c9ad2', horizon: '#ffd590', glow: '#ffdf96', sun: '#ffeab0', light: '#ffe6b8', intensity: 3.2, height: 14, hemiSky: '#c9cfe8', hemiGround: '#e0bf8c', hemi: 0.55, lamps: 0, rays: 0.15, stars: 0 },
+  { t: 7.5, top: '#9a8ac6', horizon: '#ffbd78', glow: '#ffc878', sun: '#ffd890', light: '#ffcf8a', intensity: 3.3, height: 11, hemiSky: '#d6bfe0', hemiGround: '#c9a07a', hemi: 0.52, lamps: 0.2, rays: 0.23, stars: 0 },
+  { t: 11, top: '#d27f9c', horizon: '#ffa25e', glow: '#ffb466', sun: '#ffc678', light: '#ffb06a', intensity: 3.4, height: 8, hemiSky: '#e8a8a8', hemiGround: '#9e7468', hemi: 0.5, lamps: 0.9, rays: 0.3, stars: 0 },
+  { t: 14, top: '#9a4a7c', horizon: '#ff7c4c', glow: '#ff9a5a', sun: '#ffb070', light: '#ff9a5e', intensity: 3.5, height: 6, hemiSky: '#d98aa0', hemiGround: '#6e4a62', hemi: 0.5, lamps: 1.4, rays: 0.35, stars: 0.15 },
+  { t: 17, top: '#5a2a5c', horizon: '#ff5c34', glow: '#ffa060', sun: '#ffd29a', light: '#ff9a68', intensity: 3.0, height: 4.5, hemiSky: '#f0907e', hemiGround: '#5a3a56', hemi: 0.46, lamps: 1.6, rays: 0.28, stars: 1 },
+  { t: 18.6, top: '#ffd9a8', horizon: '#fff0d0', glow: '#ffffff', sun: '#fff8ea', light: '#ffe6c8', intensity: 5, height: 4.5, hemiSky: '#fff0e0', hemiGround: '#ffe0c0', hemi: 1.6, lamps: 1.6, rays: 0.15, stars: 0.25 },
+  { t: GAME_LENGTH, top: '#ffffff', horizon: '#ffffff', glow: '#ffffff', sun: '#ffffff', light: '#ffffff', intensity: 8, height: 4.5, hemiSky: '#ffffff', hemiGround: '#ffffff', hemi: 3.2, lamps: 1.6, rays: 0, stars: 0 },
 ];
 
 const COLOR_FIELDS = ['top', 'horizon', 'glow', 'sun', 'light', 'hemiSky', 'hemiGround'];
-const NUMBER_FIELDS = ['intensity', 'height', 'hemi', 'lamps'];
+const NUMBER_FIELDS = ['intensity', 'height', 'hemi', 'lamps', 'rays', 'stars'];
 
 // Pre-parse colours once.
 for (const k of KEYS) for (const f of COLOR_FIELDS) k[f] = new THREE.Color(k[f]);
@@ -96,10 +96,29 @@ export class Sky {
     sky.position.set(0, 14, -14);
     scene.add(sky);
 
-    this.sunMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', map: paperTexture() });
-    this.sun = card(circle(0, 0, 1), null, { depth: 0.02, material: this.sunMaterial, shadows: false });
-    this.sun.receiveShadow = false;
+    // The sun is a flat tissue-paper disc with two fainter, larger layers behind it. It's
+    // transparent and doesn't write depth, so it can be the light source for the sun rays.
+    this.sunMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', map: paperTexture(), transparent: true, depthWrite: false });
+    const disc = new THREE.ShapeGeometry(circle(0, 0, 1), 48);
+    this.sun = new THREE.Mesh(disc, this.sunMaterial);
     scene.add(this.sun);
+    this.halos = [[1.07, 0.32], [1.2, 0.13]].map(([scale, opacity]) => {
+      const mat = new THREE.MeshBasicMaterial({ color: '#ffffff', map: paperTexture(), transparent: true, opacity, depthWrite: false });
+      const halo = new THREE.Mesh(disc, mat);
+      halo.userData.scale = scale;
+      scene.add(halo);
+      return halo;
+    });
+
+    // Stars come out in the dark top of the sky just before the end.
+    const starPositions = new Float32Array(90 * 3);
+    for (let i = 0; i < 90; i++) {
+      starPositions.set([(Math.random() - 0.5) * 70, 11 + Math.random() * 16, -13.5], i * 3);
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    this.starMaterial = new THREE.PointsMaterial({ color: '#fff4dc', size: 0.12, transparent: true, opacity: 0, depthWrite: false });
+    scene.add(new THREE.Points(starGeo, this.starMaterial));
 
     this.light = new THREE.DirectionalLight('#ffffff', 2.6);
     this.light.castShadow = true;
@@ -140,6 +159,12 @@ export class Sky {
     this.sun.position.copy(centre);
     this.sun.scale.set(r, r, 1);
     this.sunMaterial.color.copy(s.sun).multiplyScalar(1.7);
+    for (const [i, halo] of this.halos.entries()) {
+      halo.position.set(centre.x, centre.y, centre.z - 0.05 * (i + 1));
+      halo.scale.set(r * halo.userData.scale, r * halo.userData.scale, 1);
+      halo.material.color.copy(s.glow).multiplyScalar(1.3);
+    }
+    this.starMaterial.opacity = s.stars * (0.75 + 0.25 * Math.sin(t * 7));
 
     this.skyUniforms.uTop.value.copy(s.top);
     this.skyUniforms.uHorizon.value.copy(s.horizon);

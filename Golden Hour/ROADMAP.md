@@ -213,7 +213,7 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
 - **Checks:** `tools/selftest.mjs` checks every throw against every kind of target, and both chains.
 - **Tool:** `tools/find-evening.mjs` finds evenings with a given story or a crossover.
 
-### Phase 3 — Art pass (Nov 5 – 7, ~3 days)
+### Phase 3 — Art pass (Nov 5 – 7, ~3 days) — ✅ mostly done 2026-11-02
 
 1. **Light**
    - god rays from the sun (postprocessing `GodRaysEffect`)
@@ -240,6 +240,40 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
    - a "low" quality tier for phones (no god rays, half-resolution bloom)
 
 *Done when:* side-by-side screenshots of the same evening before and after are clearly richer, and a mid-range phone holds ≥ 45 fps.
+
+*Status:*
+- **Done:**
+  - **Light:** sun rays (desktop only); a layered tissue-paper sun; townsfolk go to silhouette as the sun fills the sky; stars in the last seconds.
+  - **Handmade feel:**
+    - stop-motion stepping (puppets and props move 12 times a second)
+    - hand-cut edges and slight crookedness on cards
+    - paper stocks: watercolour hills, corrugated site hoarding, an occasional newsprint house
+  - **Characters:**
+    - eyebrows (automatic, or set with `brows`)
+    - smile / "o" / grin mouths
+    - glasses on about a fifth of adults
+    - scarves, ready for winter
+  - **Photos** (`src/game/PhotoLab.js`):
+    - tilt-shift blur when zoomed in
+    - motion blur when the camera moves at the shutter
+    - bleaching in the last seconds
+    - light leaks and grain
+  - **Opening and ending:** a pop-up-book opening (on load and before each new evening; a tap skips it) and an album page-turn.
+  - **Performance:**
+    - the static town and house row are baked into one mesh per material
+    - small cards skip the edge material
+    - shadows redraw only on stop-motion steps
+    - adaptive resolution
+    - a low tier for phones and small machines: 1× resolution, no multisampling, no sun rays, 1024 shadow map
+    - `?all=1` stress mode
+- **Measured on this machine's Intel UHD 630:** the browser pane went from ~15 fps to the 30 fps the pane allows. Draw calls dropped from ~2,030 to ~890 per frame, and a render costs ~9 ms at 1× pixel ratio.
+- **Not done:**
+  - lens flare
+  - visible strings on sky objects
+  - profile poses
+  - a fold-shut ending (the whiteout stays)
+  - testing on a real phone
+- **Known:** eyebrows are hard to see on dark hair at gameplay size.
 
 ### Phase 4 — Content wave 2 and sound (Nov 8 – 10, ~3 days)
 

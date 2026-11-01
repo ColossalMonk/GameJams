@@ -71,6 +71,15 @@ npm install
 npm run dev
 ```
 
+### Look and performance
+
+- People and props move like stop-motion (12 steps a second) while light and camera stay smooth.
+- Cards have hand-cut edges, a slight tilt, and some use other paper stocks.
+- The static town is baked into a few meshes when it's built, to save draw calls. Shadows redraw only on stop-motion steps.
+- The resolution adapts: it starts at up to 1.5× and steps down while frames are slow. Touch devices and small machines use a low tier without sun rays or multisampling.
+- Photos are developed in `src/game/PhotoLab.js`: tilt-shift blur when zoomed in, motion blur when the camera moves, bleaching near the end, and film grain and light leaks.
+- `?all=1` loads every story at once, as a stress test.
+
 ### Development tools
 
 - **Story gallery:** open the dev server with `?story=crane` (or `?story=kite&outcome=alt&peak=6`). It plays one story on its own, with a time slider, an outcome picker and the box scoring uses. Keys: Space play/pause, `[` `]` previous/next story, `o` next outcome, `r` restart.

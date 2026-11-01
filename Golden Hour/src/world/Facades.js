@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { card, place } from './paper.js';
 import { rect, roundRect, poly } from './shapes.js';
 import { windowGrid } from './Town.js';
+import { bakeStatic } from './bake.js';
 
 const WALLS = ['#e9b98f', '#c9a4c4', '#f0d58c', '#d98c6b', '#a8c8b0', '#e7c7a9', '#b9cde0', '#f2c8b8', '#d6c08a'];
 const ROOFS = ['#b5524a', '#6d5a7a', '#8a5a4a', '#4f6a7a', '#a8643a'];
@@ -46,13 +47,15 @@ export class Facades {
       x += w + evening.range(0.05, 0.3);
     }
     if (site) this.site = this.buildSite();
+    bakeStatic(this.group, { skip: this.site ? this.site.moving : [] });
   }
 
   house(e, x, w, h) {
     const g = new THREE.Group();
     const wall = e.pick(WALLS);
     const roof = e.pick(ROOFS);
-    place(g, card(rect(-w / 2, 0, w, h), wall), 0, 0, 0);
+    // Now and then a house front is cut from an old newspaper.
+    place(g, card(rect(-w / 2, 0, w, h), wall, { stock: e.chance(0.12) ? 'newsprint' : 'paper' }), 0, 0, 0);
     const roofType = e.pick(['gable', 'gable', 'flat', 'step']);
     if (roofType === 'gable') {
       place(g, card(poly([[-w / 2 - 0.15, h], [w / 2 + 0.15, h], [0, h + w * e.range(0.32, 0.5)]]), roof), 0, 0, 0.02);
@@ -84,7 +87,7 @@ export class Facades {
       place(g, card(poly([[SITE.posts[i], SITE.beams[0]], [SITE.posts[i] + 0.08, SITE.beams[0]], [SITE.posts[i + 1], SITE.beams[1] - 0.1], [SITE.posts[i + 1] - 0.08, SITE.beams[1] - 0.1]]), '#7d5a48', { depth: 0.02 }), 0, 0, 0.03);
     }
     // Hoarding along the bottom
-    place(g, card(rect(SITE.x0 - 0.2, 0, SITE.x1 - SITE.x0 + 0.2, 0.7), '#c9a46a'), 0, 0, 0.4);
+    place(g, card(rect(SITE.x0 - 0.2, 0, SITE.x1 - SITE.x0 + 0.2, 0.7), '#c9a46a', { stock: 'corrugated' }), 0, 0, 0.4);
     for (let i = 0; i < 4; i++) place(g, card(rect(0, 0, 0.5, 0.08), '#e2574c', { depth: 0.01 }), SITE.x0 + i * 0.9, 0.36, 0.44);
 
     // Tower crane: mast, jib, counter-jib, cab, trolley + hook
@@ -120,6 +123,8 @@ export class Facades {
       beams: SITE.beams,
       jib: { x0: mastX - 3.9, x1: mastX - 0.3, y: top },
       hook,
+      /** Parts the site stories animate (kept out of the static merge). */
+      moving: [trolley, hook, line],
       /** Move the trolley along the jib to x and lower the hook to y (site-local coordinates). */
       setHook(hx, hy) {
         trolley.position.set(hx, top, -0.22);

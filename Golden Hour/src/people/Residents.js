@@ -75,6 +75,7 @@ export class Residents {
       bottom: e.pick(BOTTOMS),
       beard: !dress && !kid && e.chance(old ? 0.45 : 0.15),
       height: kid ? e.range(0.58, 0.66) : old ? e.range(0.88, 0.95) : e.range(0.93, 1.04),
+      glasses: !kid && e.chance(old ? 0.3 : 0.18),
       ...spec.look,
     };
     return { first: this.unique(FIRST, this.usedFirst), last: this.unique(LAST, this.usedLast), look };

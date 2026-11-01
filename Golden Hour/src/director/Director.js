@@ -30,7 +30,7 @@ const third = (x) => (x < -4 ? 0 : x > 4 ? 2 : 1);
  * Returns [{ story, slots: [slot…], outcome, peak, cross? }]. cross.target is the planned
  * story this one's thrown prop lands in.
  */
-export function planEvening(evening, { stories, slots, place = 'elm', only = null }) {
+export function planEvening(evening, { stories, slots, place = 'elm', only = null, stress = false }) {
   // 1. Who's eligible tonight: rarity is rolled per story.
   let pool = stories.filter((s) => s.places.includes(place));
   if (only) pool = only.map((id) => pool.find((s) => s.id === id)).filter(Boolean);
@@ -55,7 +55,8 @@ export function planEvening(evening, { stories, slots, place = 'elm', only = nul
     if (chosen.length >= target) break;
     const taken = [];
     for (const type of story.slots) {
-      const free = slots.filter((sl) => sl.type === type && !used.has(sl.id) && !taken.includes(sl));
+      // In stress mode (performance testing) stories may share slots.
+      const free = slots.filter((sl) => sl.type === type && (stress || (!used.has(sl.id) && !taken.includes(sl))));
       if (!free.length) break;
       taken.push(evening.pick(free));
     }

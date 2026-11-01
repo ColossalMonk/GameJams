@@ -19,5 +19,11 @@ export const VIEW_BOX = { left: -12.4, right: 12.4, bottom: -1.5, top: 10.6 };
 /** Viewfinder size limits, as a fraction of the canvas height. */
 export const VIEWFINDER = { min: 0.14, max: 0.62, start: 0.3 };
 
+/**
+ * People and props move on stop-motion "twos": they update this many times a second, while
+ * the light, sky, particles and camera stay smooth. Shadows are redrawn only on these steps.
+ */
+export const PUPPET_FPS = 12;
+
 /** Window during which everyone on the street turns and waves at the sun. */
 export const GROUP_WAVE = { start: 15.2, end: 17.8 };
