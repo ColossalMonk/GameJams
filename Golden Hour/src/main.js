@@ -12,11 +12,16 @@ import { scorePhoto } from './game/Scoring.js';
 import { HUD } from './ui/HUD.js';
 import { Album } from './ui/Album.js';
 import { Audio } from './audio/Audio.js';
-import { Evening, randomEveningNumber, MAX_EVENING } from './game/Evening.js';
+import { Evening, randomEveningNumber } from './game/Evening.js';
 import { pickRequest, REQUEST_BONUS } from './game/Requests.js';
-import { setSunX } from './world/Sky.js';
+import { setSunX, sunCentre } from './world/Sky.js';
 import { GAME_LENGTH, SHOTS, FILM_ADVANCE, WHITEOUT_START, VIEWFINDER, PUPPET_FPS } from './config.js';
 import { develop } from './game/PhotoLab.js';
+import { Journal } from './game/Journal.js';
+import { Strings } from './world/Strings.js';
+import { Season } from './world/Season.js';
+import { Backdrop } from './world/Backdrop.js';
+import { Flare } from './ui/Flare.js';
 
 const app = document.getElementById('app');
 const stage = new Stage3D(app);
@@ -35,6 +40,14 @@ const show = new Show(stage.scene, particles, {
   onSfx: (name, x) => audio.sfx(name, x),
 });
 const hud = new HUD();
+const journal = new Journal();
+let freshStickers = 0;
+const strings = new Strings(stage.scene);
+const season = new Season(stage.scene, { town, sky, camera: stage.camera });
+const backdrop = new Backdrop(stage.scene);
+const flare = new Flare(app);
+/** Players who ask their system for less motion get no camera drift and an instant opening. */
+const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const album = new Album();
 const viewfinder = new Viewfinder(app, document.getElementById('viewfinder'), { onShoot: requestShot });
 
@@ -51,8 +64,17 @@ let request = null;
 let requestDone = false;
 
 const PHOTO_SIZE = 512;
+/** Stories living in these slots hang from paper-theatre strings. */
+const STRUNG = ['sky', 'lowsky'];
+/** At the end the paper town folds flat, like a pop-up book closing, under the whiteout. */
+const FOLD_START = 19.2;
 
-const params = new URLSearchParams(location.search);
+/**
+ * Every evening is a random surprise for players. The URL switches below (?evening=,
+ * ?story=, ?all=) only work in the dev server, for testing; the published build ignores them.
+ */
+const DEV = import.meta.env.DEV;
+const params = new URLSearchParams(DEV ? location.search : '');
 
 /**
  * Every run is a numbered evening. The number seeds where the sun sets, the street's
@@ -64,6 +86,10 @@ const params = new URLSearchParams(location.search);
 function prepareEvening(number, options = {}) {
   evening = new Evening(number);
   setSunX(evening.range(-5, 7));
+  // Season and weather first: tonight's residents dress for it (scarves in winter).
+  season.apply(evening);
+  // Tonight's far distance: hills, the sea, mountains or a city.
+  backdrop.build(evening);
   const plan = planEvening(evening, { stories: STORIES, slots: SLOTS, only: options.only, stress: options.stress });
   for (const item of plan) {
     if (options.outcome && item.story.outcomes[options.outcome]) item.outcome = options.outcome;
@@ -71,6 +97,12 @@ function prepareEvening(number, options = {}) {
   }
   facades.build(evening, { site: usesSite(plan) });
   show.load(plan, evening, { site: facades.site });
+  strings.clear();
+  for (const o of [...town.clouds, ...town.birds]) strings.attach(o);
+  for (const m of show.moments) {
+    if (!m.instance || !STRUNG.includes(m.story.slots[0]) || m.story.id === 'skywriter') continue;
+    for (const o of m.focus()) strings.attach(o);
+  }
   particles.clear();
   town.reseed(evening);
   request = pickRequest(evening, show);
@@ -83,19 +115,18 @@ function prepareEvening(number, options = {}) {
  * row, then tonight's cast, each with a little overshoot. Plays on load and before every
  * new evening; a tap or Space skips it. It isn't part of the 20 seconds.
  */
-const OPENING = 1.1;
+const OPENING = reducedMotion ? 0.05 : 1.1;
 let opening = { at: 0, then: null };
 
 function popUp(u) {
   const back = (k) => 1 + 2.70158 * Math.pow(k - 1, 3) + 1.70158 * Math.pow(k - 1, 2);
-  [town.group, facades.group, show.group].forEach((g, i) => {
+  [backdrop.group, town.group, facades.group, show.group].forEach((g, i) => {
     if (!g) return;
     const k = Math.min(1, Math.max(0, (u - i * 0.15) / 0.7));
     g.scale.y = k <= 0 ? 0.001 : back(k);
   });
 }
 
-/** mode: 'current' (from the title), 'new' or 'same' (from the album). */
 /** A small burst of gold sparks over a story that's about to peak: where to look. */
 const hintBox = new THREE.Box3();
 function sparkle(m) {
@@ -108,6 +139,22 @@ function sparkle(m) {
   }
 }
 
+/** The book closing: every layer of the town lies back down flat (u: 0 → 1). */
+function fold(u) {
+  const k = u * u * (3 - 2 * u);
+  for (const g of [backdrop.group, town.group, facades.group, show.group]) if (g) g.scale.y = Math.max(0.001, 1 - k);
+}
+
+/** Where the sun is on screen, for the lens flare. */
+const sunOnScreen = new THREE.Vector3();
+function updateFlare(dt) {
+  sunOnScreen.copy(sunCentre(t)).project(stage.camera);
+  const visible = Math.abs(sunOnScreen.x) < 1 && Math.abs(sunOnScreen.y) < 1;
+  const sun = visible ? { x: ((sunOnScreen.x + 1) / 2) * stage.width, y: ((1 - sunOnScreen.y) / 2) * stage.height } : null;
+  flare.update(sun, viewfinder.rect, state === 'playing' && t < 18, dt);
+}
+
+/** mode: 'current' (from the title, tonight is already built) or 'new' (from the album). */
 function begin(mode = 'current') {
   if (state === 'playing' || state === 'opening') return;
   audio.start();
@@ -116,7 +163,7 @@ function begin(mode = 'current') {
     startRun();
     return;
   }
-  prepareEvening(mode === 'new' ? randomEveningNumber() : evening.number);
+  prepareEvening(randomEveningNumber());
   t = 0;
   hud.setWhiteout(0);
   state = 'opening';
@@ -129,6 +176,7 @@ function startRun() {
   state = 'playing';
   t = 0;
   photos = [];
+  freshStickers = 0;
   lockedUntil = 0;
   pendingShot = null;
   particles.clear();
@@ -180,7 +228,12 @@ function takePhoto(rect) {
   photos.push({ dataUrl, ...result, t });
   hud.shot(photos.length - 1, dataUrl);
   audio.shutter();
-  if (result.kind === 'peak') audio.addLayer();
+  if (result.kind === 'peak') {
+    audio.addLayer();
+    const m = show.moments.find((q) => q.id === result.id);
+    if (m?.story && journal.record(m.story.id, m.variant)) freshStickers++;
+    else if (m && !m.story) journal.recordCrossover();
+  }
   lockedUntil = t + FILM_ADVANCE;
   if (!requestDone && request.test(photos)) {
     requestDone = true;
@@ -216,7 +269,14 @@ function endRun() {
   const bonus = fulfilled ? REQUEST_BONUS : 0;
   while (photos.length < SHOTS) photos.push({ dataUrl: null, caption: 'You were too busy watching.', score: 0 });
   const total = photos.reduce((sum, p) => sum + p.score, 0) + bonus;
-  const night = { evening: evening.number, request: request.text, fulfilled, bonus, ...summarise(total) };
+  const night = {
+    evening: evening.number,
+    request: request.text,
+    fulfilled,
+    bonus,
+    ...summarise(total),
+    journal: { pages: journal.pages(STORIES), ...journal.count(STORIES), fresh: freshStickers },
+  };
   albumAt = wall + 0.7;
   setTimeout(() => {
     album.show(photos, total, night);
@@ -224,35 +284,12 @@ function endRun() {
   }, 700);
 }
 
-/** Everyone gets the same evening on the same day. */
-function todaysEvening() {
-  const d = new Date();
-  let h = 2166136261;
-  for (const c of `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return 1 + ((h >>> 0) % MAX_EVENING);
-}
-
-/** Switch the title screen to another evening, popping the new town up. */
-function chooseEvening(number) {
-  if (state !== 'title' || !(number >= 1 && number <= MAX_EVENING)) return;
-  prepareEvening(Math.round(number));
-  popUp(0);
-  opening = { at: wall, then: null };
-}
-
 // ── Input outside the viewfinder ──
 document.getElementById('title').addEventListener('click', () => begin('current'));
-for (const el of document.querySelectorAll('.pick-evening, .pick-evening *')) el.addEventListener('click', (e) => e.stopPropagation());
-document.getElementById('today').addEventListener('click', () => chooseEvening(todaysEvening()));
-const numberInput = document.getElementById('evening-number');
-numberInput.addEventListener('change', () => chooseEvening(Number(numberInput.value)));
-numberInput.addEventListener('keydown', (e) => e.stopPropagation());
-for (const [id, mode] of [['again', 'new'], ['same', 'same']]) {
-  document.getElementById(id).addEventListener('click', (e) => {
-    e.stopPropagation();
-    begin(mode);
-  });
-}
+document.getElementById('again').addEventListener('click', (e) => {
+  e.stopPropagation();
+  begin('new');
+});
 app.addEventListener('pointerdown', () => {
   if (state === 'opening') opening.at = -Infinity;
 });
@@ -306,8 +343,10 @@ function frame() {
   if (state === 'playing') t = Math.min(GAME_LENGTH, t + dt);
 
   sky.update(t);
+  season.update(t, dt);
   stage.setSunRays(sky.state.rays);
   town.update(dt, wall);
+  backdrop.update(dt, wall);
   if (opening) {
     const u = (wall - opening.at) / OPENING;
     popUp(Math.min(1, u));
@@ -327,13 +366,19 @@ function frame() {
     stage.renderer.shadowMap.needsUpdate = true;
   }
   particles.update(dt);
-  stage.setParallax(state === 'playing' ? viewfinder.nx : 0);
+  stage.setParallax(state === 'playing' && !reducedMotion ? viewfinder.nx : 0);
   if (state === 'playing') {
     audio.update(t);
     if (t >= lockedUntil) hud.unlock();
     const u = Math.max(0, (t - WHITEOUT_START) / (GAME_LENGTH - WHITEOUT_START));
     hud.setWhiteout(Math.pow(u, 2.2));
+    if (t > FOLD_START) {
+      fold(Math.min(1, (t - FOLD_START) / (GAME_LENGTH - FOLD_START)));
+      stage.renderer.shadowMap.needsUpdate = true;
+    }
   }
+  strings.update();
+  updateFlare(dt);
 
   stage.render(dt);
   stage.adapt(dt);
@@ -348,5 +393,5 @@ function frame() {
 requestAnimationFrame(frame);
 app.classList.add('menu');
 
-// Debug hook for development.
-window.__golden = { stage, show, audio, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };
+// Debug hook for development only.
+if (DEV) window.__golden = { stage, show, audio, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };

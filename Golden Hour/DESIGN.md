@@ -4,7 +4,7 @@ Entry for the [20 Second Game Jam 2026](https://itch.io/jam/20-second-game-jam-2
 
 > The sun is swelling and Earth has 20 seconds left. Nobody is panicking. The town is out for one last perfect evening, and you're the photographer with five shots left on the roll.
 
-**Status:** ready to publish. Roadmap Phases 1–5 are done (3 and 5 mostly) and the release kit is in [ITCH.md](ITCH.md); see [ROADMAP.md](ROADMAP.md). The town now runs on a story system: 57 stories in a catalogue, 8–10 chosen per evening by a director, with generated townspeople, a street rebuilt each evening, and stories that land in each other. The fixed cast described below was the first playable; see [ROADMAP.md](ROADMAP.md) for the current plan.
+**Status:** ready to publish. Every roadmap phase is done (see [ROADMAP.md](ROADMAP.md) for what was dropped), and the release kit is in [ITCH.md](ITCH.md). Evenings are always random; players never choose one. The town now runs on a story system: 57 stories in a catalogue, 8–10 chosen per evening by a director, with generated townspeople, a street rebuilt each evening, and stories that land in each other. The fixed cast described below was the first playable; see [ROADMAP.md](ROADMAP.md) for the current plan.
 
 ## Jam rules that affect design
 

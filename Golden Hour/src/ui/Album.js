@@ -26,6 +26,18 @@ export class Album {
     this.shareButton = document.getElementById('share');
     this.shareText = '';
     this.shareButton.addEventListener('click', () => this.share());
+    this.newspaper = document.getElementById('newspaper');
+    this.journalEl = document.getElementById('journal');
+    this.journalButton = document.getElementById('journal-open');
+    this.journalButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.openJournal();
+    });
+    document.getElementById('journal-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.journalEl.classList.add('hidden');
+    });
+    this.journalView = null;
     this.grid = document.getElementById('polaroids');
     this.photos = [];
     this.total = 0;
@@ -33,8 +45,11 @@ export class Album {
     document.getElementById('save').addEventListener('click', () => this.save());
   }
 
-  /** night: { evening, request, fulfilled, bonus, epilogue, share } */
+  /** night: { evening, request, fulfilled, bonus, epilogue, share, journal: { pages, seen, total, fresh } } */
   show(photos, total, night) {
+    this.journalView = night.journal;
+    this.journalButton.textContent = `Journal ${night.journal.seen}/${night.journal.total}${night.journal.fresh ? ` · +${night.journal.fresh} new` : ''}`;
+    this.renderNewspaper(photos, night);
     this.shareText = night.share;
     this.shareButton.textContent = 'Copy result';
     this.epilogueEl.textContent = night.epilogue;
@@ -103,8 +118,56 @@ export class Album {
     this.shareButton.textContent = 'Copied ✓';
   }
 
+  /** The Elm Street Evening Post: tonight's best photo on the front page. */
+  renderNewspaper(photos, night) {
+    const best = photos.filter((p) => p.dataUrl).sort((a, b) => b.score - a.score)[0];
+    const headline = best ? best.caption.replace(/[.!]+$/, '').toUpperCase() : 'PHOTOGRAPHER SEES EVERYTHING, SHOOTS NOTHING';
+    this.newspaper.replaceChildren();
+    const make = (tag, cls, text) => {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      if (text) el.textContent = text;
+      return el;
+    };
+    this.newspaper.append(
+      make('div', 'masthead', 'The Elm Street Evening Post'),
+      make('div', 'dateline', `Evening No. ${night.evening} · Final edition · The very last one`),
+      make('h3', 'headline', headline),
+    );
+    if (best) {
+      const img = new Image();
+      img.src = best.dataUrl;
+      img.alt = best.caption;
+      this.newspaper.append(img);
+    }
+    this.newspaper.append(make('p', 'story', `${night.epilogue} The sun is expected to keep growing. Residents say they "wouldn't miss it".`));
+  }
+
+  openJournal() {
+    if (!this.journalView) return;
+    const { pages, seen, total } = this.journalView;
+    document.getElementById('journal-count').textContent = `${seen} of ${total} endings caught at their peak, across all your evenings.`;
+    const list = document.getElementById('journal-list');
+    list.replaceChildren(
+      ...pages.map((page) => {
+        const card = document.createElement('div');
+        card.className = `journal-page ${page.rarity}`;
+        for (const ending of page.endings) {
+          const row = document.createElement('div');
+          row.className = ending.seen ? 'ending seen' : 'ending';
+          row.textContent = ending.seen ? ending.caption : '? ? ?';
+          card.append(row);
+        }
+        return card;
+      }),
+    );
+    this.journalEl.classList.remove('hidden');
+    this.journalEl.scrollTop = 0;
+  }
+
   hide() {
     this.el.classList.add('hidden');
+    this.journalEl.classList.add('hidden');
   }
 
   /** Download the album as one PNG, for sharing. */

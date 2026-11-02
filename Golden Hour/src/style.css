@@ -162,6 +162,30 @@ canvas { display: block; }
   to { transform: none; opacity: 1; }
 }
 
+/* ── Lens flare ── */
+#flare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  overflow: hidden;
+}
+#flare span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ── Whiteout ── */
 #whiteout {
   position: absolute;
@@ -218,25 +242,6 @@ canvas { display: block; }
   line-height: 1.4;
 }
 #title .tonight strong { color: var(--accent); font-weight: 600; }
-
-#title .pick-evening {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 0 0 14px;
-  font-size: 14px;
-}
-#title .pick-evening button { font-size: 14px; padding: 5px 14px; }
-#title .pick-evening input {
-  width: 70px;
-  font: inherit;
-  padding: 4px 6px;
-  border: 1px solid rgba(47, 37, 48, 0.25);
-  border-radius: 6px;
-  background: #fff;
-}
 
 #title .hint {
   margin: 0 0 20px;
@@ -426,6 +431,109 @@ kbd {
   opacity: 0.5;
   margin-top: 2px;
 }
+
+/* ── Newspaper front page ── */
+#newspaper {
+  max-width: 420px;
+  margin: 0 auto 26px;
+  padding: 14px 18px 16px;
+  background: #f1ebde;
+  color: #2b2722;
+  font-family: Georgia, 'Times New Roman', serif;
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(60, 40, 30, 0.2);
+  transform: rotate(0.8deg);
+  opacity: 0;
+  animation: fade-up 0.8s 1.8s forwards;
+}
+#newspaper .masthead {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 3px double #2b2722;
+  padding-bottom: 4px;
+}
+#newspaper .dateline {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 3px 0;
+  border-bottom: 1px solid #2b2722;
+  margin-bottom: 10px;
+}
+#newspaper .headline {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-size: clamp(20px, 3.4vw, 28px);
+  line-height: 1.05;
+}
+#newspaper img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15) sepia(0.15);
+  margin-bottom: 8px;
+}
+#newspaper .story {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  column-count: 2;
+  column-gap: 14px;
+}
+
+/* ── Journal ── */
+#journal {
+  background: #fffaf2;
+  overflow-y: auto;
+  align-items: flex-start;
+  touch-action: pan-y;
+  z-index: 5;
+}
+.journal-inner {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px 0 28px;
+  text-align: center;
+}
+.journal-inner h2 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 44px);
+  color: var(--accent);
+}
+#journal-count {
+  font-family: var(--hand);
+  font-size: 22px;
+  margin: 4px 0 18px;
+}
+#journal-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+.journal-page {
+  padding: 8px 10px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(60, 40, 30, 0.12);
+}
+.journal-page.rare { box-shadow: 0 0 0 2px var(--gold), 0 2px 8px rgba(60, 40, 30, 0.12); }
+.journal-page.legendary { box-shadow: 0 0 0 2px #c9a4ff, 0 2px 8px rgba(60, 40, 30, 0.12); }
+.journal-page .ending {
+  font-family: var(--hand);
+  font-size: 17px;
+  line-height: 1.1;
+  padding: 3px 0;
+  color: rgba(47, 37, 48, 0.3);
+}
+.journal-page .ending.seen { color: var(--ink); }
+.journal-page .ending + .ending { border-top: 1px dashed rgba(47, 37, 48, 0.12); }
 
 .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 

@@ -213,7 +213,7 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
 - **Checks:** `tools/selftest.mjs` checks every throw against every kind of target, and both chains.
 - **Tool:** `tools/find-evening.mjs` finds evenings with a given story or a crossover.
 
-### Phase 3 — Art pass (Nov 5 – 7, ~3 days) — ✅ mostly done 2026-11-02
+### Phase 3 — Art pass (Nov 5 – 7, ~3 days) — ✅ done 2026-11-03
 
 1. **Light**
    - god rays from the sun (postprocessing `GodRaysEffect`)
@@ -267,12 +267,9 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
     - a low tier for phones and small machines: 1× resolution, no multisampling, no sun rays, 1024 shadow map
     - `?all=1` stress mode
 - **Measured on this machine's Intel UHD 630:** the browser pane went from ~15 fps to the 30 fps the pane allows. Draw calls dropped from ~2,030 to ~890 per frame, and a render costs ~9 ms at 1× pixel ratio.
-- **Not done:**
-  - lens flare
-  - visible strings on sky objects
-  - profile poses
-  - a fold-shut ending (the whiteout stays)
-  - testing on a real phone
+- **Finished on 2026-11-03:** lens flare (when the sun is in the viewfinder), paper-theatre strings on sky objects, and the town folding flat like a closing pop-up book under the whiteout.
+- **Dropped:** profile poses (no story needs them).
+- **Not done:** testing on a real phone (it can't be done from the development machine).
 - **Known:** eyebrows are hard to see on dark hair at gameplay size.
 
 ### Phase 4 — Content wave 2 and sound (Nov 8 – 10, ~3 days) — ✅ done 2026-11-03
@@ -309,12 +306,24 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
   - sparkle hints over a story about to peak (the same every run)
   - score labels under each album photo
   - an evening summary line that names a missed rare story
-  - Today's evening, plus an evening-number box on the title card
+  - ~~Today's evening and an evening-number box~~ (built, then removed on 2026-11-03: evenings are always random and never chosen by the player)
   - a Copy result share line
   - arrow-key and WASD aiming, Q/E zoom
-- **Skipped for launch:** the newspaper front page, the journal, a reduced-motion option and a portrait layout.
+- **Finished on 2026-11-03:**
+  - the newspaper front page (the Elm Street Evening Post, with your best photo)
+  - the journal (cosmetic, in localStorage)
+  - following the system's reduced-motion setting (no camera drift, instant opening, no UI animations)
+- **Dropped:** a portrait layout. The stories span the whole street, so portrait phones show the whole town smaller, with a "turn your phone" hint.
 
-### Phase 6 — Seasons, weather and a second place (Nov 13 – 14, ~2 days, stretch) — skipped for launch
+### Phase 6 — Seasons, weather and a second place (Nov 13 – 14, ~2 days, stretch) — ✅ done 2026-11-03
+
+*Status:*
+- **Every evening now randomly gets:**
+  - a season (`src/world/Season.js`): spring, summer, autumn or winter
+  - weather: clear 60%, fog 25%, rain-then-rainbow 15%
+  - a horizon (`src/world/Backdrop.js`): hills 41%, sea 25%, mountains 19%, city 15%
+- **"A second place"** became the four horizons, rather than a separate seaside town: the stories are built around Elm Street's buildings.
+- **Separate random streams:** seasons and horizons draw from their own seeded streams, so they never change which stories an evening gets.
 
 1. **Seasons**: spring (blossom petals), summer (current look), autumn (leaves, pumpkins), winter (snow, scarves, lights earlier). Each one changes the palette and adds particles and decorations.
 2. **Weather**: clear, light fog lifting, rain clearing to a rainbow (rare).

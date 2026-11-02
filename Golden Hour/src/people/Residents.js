@@ -23,6 +23,7 @@ const SKIN = ['#f1c7a3', '#eebf9a', '#e0a77e', '#d9a07a', '#c68a5e', '#a8714e', 
 const HAIR = ['#2f2226', '#4a3326', '#6b4636', '#8a5a3a', '#b0453a', '#d9b04a', '#1f1a22', '#3a2a24'];
 const GREY = ['#ece6dc', '#d8d2cc', '#bdb6b0'];
 const TOPS = ['#d9644a', '#e2574c', '#f2c14e', '#7fae6a', '#3f6f8f', '#2f6f6a', '#c9a4c4', '#7fb3d6', '#b5524a', '#f3ead8', '#e8a35a', '#5f8fb5', '#9a6fb0'];
+const SCARVES = ['#c9473d', '#2f6f6a', '#f2c14e', '#3f6f8f', '#e8a35a', '#9a6fb0', '#f3ead8', '#b03050'];
 const BOTTOMS = ['#3f4a6b', '#2f2a30', '#4a3f5c', '#5a4a3a', '#e9d9b6', '#5f8fb5', '#6b4636'];
 const DOG_COATS = [
   { coat: '#c98a4b', patch: '#f6e6c8', ear: '#8f5a32' },
@@ -76,6 +77,7 @@ export class Residents {
       beard: !dress && !kid && e.chance(old ? 0.45 : 0.15),
       height: kid ? e.range(0.58, 0.66) : old ? e.range(0.88, 0.95) : e.range(0.93, 1.04),
       glasses: !kid && e.chance(old ? 0.3 : 0.18),
+      ...(!kid && e.season === 'winter' ? { scarf: e.pick(SCARVES) } : {}),
       ...spec.look,
     };
     return { first: this.unique(FIRST, this.usedFirst), last: this.unique(LAST, this.usedLast), look };

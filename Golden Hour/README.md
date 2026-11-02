@@ -12,7 +12,9 @@ Entry for the [20 Second Game Jam 2026](https://itch.io/jam/20-second-game-jam-2
 - A chime from that side of the screen and a little gold sparkle mean a story is about to peak.
 - Every story has its own sounds, and every peak you photograph adds a layer to the music: bells, then strings, then a choir.
 - At 20 seconds the screen whites out and your photos come back as an album. Each photo has a caption and labels saying why it scored. A line sums up the evening, including any rare story you missed. Space starts a new evening; **Copy result** copies a spoiler-free share line.
-- On the title card, **Today's evening** gives everyone the same evening each day, and you can type in any evening number.
+- Every evening is a random surprise: players never pick or replay a particular one.
+- The album also has a newspaper front page with your best photo, and a **Journal**: a sticker book of every story ending you've caught at its peak, across all your evenings (kept in the browser, cosmetic only).
+- At the very end the paper town folds flat like a pop-up book closing. With the sun in your viewfinder you get a lens flare, and everything in the sky hangs from paper-theatre strings.
 
 ## Every evening is different
 
@@ -24,6 +26,9 @@ Each run is a numbered evening (1–9999), and the number seeds everything that 
 - **how each story ends.** Every story has 2–3 outcomes: the dog misses, the car backfires, the piano drops, the yoga class topples, the cheese wins …
 - **when each peak happens.** Peaks are spread out: never closer than 0.6 s, at most two build-ups at once, alternating sides of the screen, and something always happens in the first 3 s.
 - where the sun sets, and the clouds and birds.
+- **the season:** spring blossom, summer, autumn leaves and pumpkins, or winter snow with everyone in scarves.
+- **the weather:** clear, fog that lifts in the first seconds, or rain that clears to a rainbow.
+- **the horizon:** rolling hills, the sea with a lighthouse and sailing boats, snowy mountains, or a distant city.
 - **stories landing in each other.** When a story throws something, it can land on someone in another story nearby: the bouquet in a stranger's hand, the musician's hat on someone's head, the flying sheet over the opera singer ("a ghost"), a missed frisbee or a runaway flag caught in the street. These crossovers are photo moments of their own and score ×1.3.
 - **chain events.** The bell ringer's pigeons fly over and sit on the apartment roof when someone is up there. The balloon seller's balloons snag on the crane when the building site is up. The banner plane says MARRY ME when there's a proposal or a wedding.
 - rare stories (about 30% each): a hot-air balloon crossing the sun, a paper plane looping the loop, early fireworks. They score ×1.5 and get a "rare" sticker.
@@ -43,7 +48,7 @@ Each run is a numbered evening (1–9999), and the number seeds everything that 
 | Building site | crane lifts a piano · lunch on a beam · last-beam flag |
 | Sky and horizon | banner plane · cranes · train on the viaduct · skywriter (rare) · parachutist (rare) · balloon (rare) · paper plane (rare) · fireworks (rare) · UFO (legendary) · whale cloud (legendary) |
 
-The album shows the evening number. "Same evening again" replays it so you can try to get a better album. Adding `?evening=123` to the URL loads a specific evening.
+The album shows the evening's number, but players can't choose or replay evenings. For testing, the dev server (not the published build) accepts `?evening=123`, `?story=<id>` and `?all=1`.
 
 ## Project structure
 
@@ -55,6 +60,9 @@ The album shows the evening number. "Same evening again" replays it so you can t
 - `src/world/Sky.js`: the 20-second keyframes: sky, swelling sun, light, town lights
 - `src/world/Town.js`: the static diorama, its `SLOTS` (where stories can happen), clouds and birds
 - `src/world/Facades.js`: the house row rebuilt each evening, and the building site with its crane
+- `src/world/Backdrop.js`: tonight's far distance (hills, sea, mountains or city)
+- `src/world/Season.js`: tonight's season and weather
+- `src/world/Strings.js`: paper-theatre strings on everything in the sky
 - `src/characters/Puppet.js`, `Animals.js`, `Props.js`: paper puppets, the dog and cat, props
 - `src/people/Residents.js`: tonight's townspeople (looks and names)
 - `src/director/Director.js`: picks tonight's stories, gives them slots, outcomes and peak times
@@ -65,7 +73,9 @@ The album shows the evening number. "Same evening again" replays it so you can t
 - `src/game/Evening.js`: seeded random generator for one evening
 - `src/game/Requests.js`: tonight's request and how to check it
 - `src/game/Scoring.js`: what was in frame, how well, and the caption
-- `src/ui/HUD.js`, `src/ui/Album.js`: film counter, photo tray, whiteout, album and PNG export
+- `src/ui/HUD.js`, `src/ui/Album.js`: film counter, photo tray, whiteout, album (newspaper page, journal) and PNG export
+- `src/ui/Flare.js`: lens flare when the sun is in the viewfinder
+- `src/game/Journal.js`: the cosmetic journal of caught endings, kept in localStorage
 - `src/audio/Audio.js`: Tone.js pad, chimes for each moment, shutter, music layers
 - `src/audio/sfx.js`: the 39 synthesised story sound effects; `src/stories/sounds.js` cues them for the earlier stories
 - `src/tools/gallery.js` and `tools/selftest.mjs`: development tools (below)
@@ -90,7 +100,7 @@ npm run dev
 
 - **Story gallery:** open the dev server with `?story=crane` (or `?story=kite&outcome=alt&peak=6`). It plays one story on its own, with a time slider, an outcome picker and the box scoring uses. Keys: Space play/pause, `[` `]` previous/next story, `o` next outcome, `r` restart.
 - **Self-test:** `node tools/selftest.mjs` runs headless in Node. It plays every story and outcome to its peak, frames it like a player and checks it scores as a peak with the right caption. It does the same for every crossover and chain event. Then it plans and plays 300 evenings, looking for crashes, slot clashes and peaks too close together, and reports how many evenings have a crossover. `node tools/selftest.mjs crane` checks one story.
-- **Find an evening:** `node tools/find-evening.mjs crossover` (or a story id such as `ufo`) lists evening numbers that have one, to open with `?evening=N`.
+- **Find an evening:** `node tools/find-evening.mjs crossover` (or a story id such as `ufo`) lists evening numbers that have one, to open with `?evening=N` on the dev server.
 
 `npm run build` writes `dist/`. `tools\package-itch.ps1` builds and writes `golden-hour-itch.zip` for itch.io. [ITCH.md](ITCH.md) has the full release steps, the page text and the generative-AI disclosure.
 

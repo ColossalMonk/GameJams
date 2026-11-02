@@ -32,7 +32,7 @@ Don't use `Compress-Archive` for this. In Windows PowerShell 5.1 it writes paths
 >
 > The sun is swelling and the world has twenty seconds left. Nobody minds. The town is out for one last perfect evening, and you're the photographer with five shots on the roll.
 >
-> Every evening is different. Tonight's stories are picked from more than fifty: a dog leaping for a frisbee, an old car that finally starts, a piano on a crane, a bride's bouquet, a marching band, sky lanterns. Any of them can go the other way. Things thrown in one story land in another. And on some evenings something rare happens. Or something legendary.
+> Every evening is different: a new season, new weather, a new horizon, and tonight's stories picked from more than fifty: a dog leaping for a frisbee, an old car that finally starts, a piano on a crane, a bride's bouquet, a marching band, sky lanterns. Any of them can go the other way. Things thrown in one story land in another. And on some evenings something rare happens. Or something legendary.
 >
 > Frame it, catch it at its peak, and see your evening come back as an album of polaroids.
 >
@@ -42,7 +42,7 @@ Don't use `Compress-Archive` for this. In Windows PowerShell 5.1 it writes paths
 > - Click / tap / Space: take a photo (you have five)
 > - Arrow keys or WASD: aim with the keyboard
 >
-> **Tips:** a chime and a little sparkle mean something is about to happen. Tighter framing and later, golder light score more. Hold still when you shoot. Every evening has a number: "Today's evening" is the same for everyone, so compare albums with friends.
+> **Tips:** a chime and a little sparkle mean something is about to happen. Tighter framing and later, golder light score more. Hold still when you shoot. Every evening is different and you never get the same one twice on purpose, so the only way to see everything is to keep coming back. Your journal remembers every ending you've caught.
 >
 > Made for the 20 Second Game Jam 2026.
 

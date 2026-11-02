@@ -49,7 +49,7 @@ export const SLOTS = [
   { id: 'far', type: 'farsky', x: 2, y: 6.5, z: -7.0 },
 ];
 
-const C = {
+export const C = {
   ground: '#e6d2ab',
   street: '#a39a8f',
   pavement: '#ead9b6',
@@ -122,10 +122,7 @@ export class Town {
     g.add(floorCard(rect(-26, -6, 52, 5.8), C.pavement, 0.008));
     g.add(floorCard(roundRect(4.4, -4.6, 22, 3.6, 1.2), C.grass, 0.016));
 
-    // ── Far hills, layered ──
-    place(g, card(hill(-26, 26, (x) => 2.2 + 0.9 * Math.sin(x * 0.32 + 1) + 0.5 * Math.sin(x * 0.9)), C.hillFarther, { depth: 0.05, stock: 'watercolour' }), 0, 0, -10.4);
-    place(g, card(hill(-26, 26, (x) => 1.3 + 0.7 * Math.sin(x * 0.45 + 2.4) + 0.3 * Math.sin(x * 1.4)), C.hillFar, { depth: 0.05, stock: 'watercolour' }), 0, 0, -9.2);
-
+    // Far distance (hills, sea, mountains or city) is rebuilt every evening by Backdrop.js.
     // Background houses are rebuilt every evening by Facades.js.
 
     // ── Near hill on the right (kite kid stands on top) ──
