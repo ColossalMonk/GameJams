@@ -72,7 +72,7 @@ Every image is rendered from the game itself: real evenings, the in-game viewfin
 | `press/shot-3-wedding.jpg` | Screenshot: a wedding outside the church, MARRY ME on the banner plane, a city horizon (evening 13) |
 | `press/shot-4-site.jpg` | Screenshot: the building site, the crane and the painter (evening 1) |
 | `press/shot-5-album.png` | Screenshot: an album (five real photos from evening 17, 5,001 points) |
-| `press/golden-hour.gif` | Screenshot (itch plays GIFs): four seconds of the balloon crossing the sun, with the viewfinder following it |
+| `press/golden-hour.gif` | Screenshot (itch plays GIFs): four seconds of the balloon crossing the sun, with the viewfinder following it (2 MB) |
 | `press/banner.png` (960 × 300) | **Banner** in Edit theme. `banner@2x.png` is 1920 × 600 |
 | `public/favicon.svg` | Already in the game: the browser tab icon |
 
@@ -98,8 +98,8 @@ The images come from the press tool, which only works on the dev server:
 2. In the browser console, call the functions listed at the top of `src/tools/press.js`, for example `await __press.cover(10, 10.5, 1000, { title: 'bottom-right' })` or `await __press.screenshot('shot-1-ufo', 426, 13.4, 'ufo')`. Use `node tools/find-evening.mjs <story>` to find evenings with a story.
 3. Files are saved straight into `press/`.
 
-The GIF is built from frames with ffmpeg:
+The GIF is built from frames with ffmpeg. The light denoise (`hqdn3d`) removes the film grain, which GIFs compress badly, and keeps it about 2 MB (itch's limit is 3 MB):
 
 ```bash
-ffmpeg -framerate 12 -i press/clip-%03d.png -vf "scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" -loop 0 press/golden-hour.gif
+ffmpeg -framerate 12 -i press/clip-%03d.png -vf "scale=640:-1:flags=lanczos,hqdn3d=6:4:8:6,split[a][b];[a]palettegen=max_colors=160:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" -loop 0 press/golden-hour.gif
 ```
