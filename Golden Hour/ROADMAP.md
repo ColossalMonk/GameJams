@@ -275,13 +275,23 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
   - testing on a real phone
 - **Known:** eyebrows are hard to see on dark hair at gameplay size.
 
-### Phase 4 — Content wave 2 and sound (Nov 8 – 10, ~3 days)
+### Phase 4 — Content wave 2 and sound (Nov 8 – 10, ~3 days) — ✅ done 2026-11-03
 
 1. The remaining ~25 stories from the catalogue, prioritising ones that **throw**, **cross over** or fill an empty slot.
 2. **Sound for each story**: bark, sputter, bell, train whistle, crowd "aww", splash, crash, kazoo. These are short Tone.js synths or small audio files.
 3. **Music that responds**: every peak you catch adds a layer (bells, then strings, then choir). The swell at the whiteout reflects how well you did.
 
-### Phase 5 — UX and ending (Nov 11 – 12, ~2 days)
+*Status (Phase 4):*
+- **Stories:** all 57 catalogue stories are built (6 rare, 2 legendary). There are 11 throwing outcomes, and 63–71% of evenings have a crossover or chain event.
+- **Sound:**
+  - 39 synthesised effects (`src/audio/sfx.js`), cued by `sounds: [[p, name]]` in stories, or by `src/stories/sounds.js` for the older ones
+  - a pop and a laugh when a crossover lands
+  - music layers (bells, strings, choir) that grow with each caught peak, and a final swell that scales with them
+- **Checks:** `tools/selftest.mjs` runs 140 checks.
+- **Not looked at by eye:** every outcome of the 27 new stories. They were written with headless checks; about half were spot-checked in the gallery.
+- **Over the card budget:** tug of war is about 100 cards. The marching band, wedding car and moving van are about 80.
+
+### Phase 5 — UX and ending (Nov 11 – 12, ~2 days) — ✅ launch items done 2026-11-03
 
 1. **Hints, the same every run**: a small paper "!" glint above a story ~1 s before its peak, plus the existing chime. There's a setting to turn glints off.
 2. **Viewfinder**: shots-left counter in its corner; a small ✓ on the tray thumbnail when you caught a peak.
@@ -294,13 +304,23 @@ Estimates are focused working days. Dates assume work starts 2026-10-29.
 6. **Accessibility**: arrow keys and WASD to aim; reduced-motion option (no stop-motion jitter, no camera parallax); larger caption option; colour-blind-safe request tick.
 7. **Portrait phones**: a vertical framing instead of the "turn your phone" hint, if it reads well. Otherwise keep the hint.
 
-### Phase 6 — Seasons, weather and a second place (Nov 13 – 14, ~2 days, stretch)
+*Status (Phase 5):*
+- **Done:**
+  - sparkle hints over a story about to peak (the same every run)
+  - score labels under each album photo
+  - an evening summary line that names a missed rare story
+  - Today's evening, plus an evening-number box on the title card
+  - a Copy result share line
+  - arrow-key and WASD aiming, Q/E zoom
+- **Skipped for launch:** the newspaper front page, the journal, a reduced-motion option and a portrait layout.
+
+### Phase 6 — Seasons, weather and a second place (Nov 13 – 14, ~2 days, stretch) — skipped for launch
 
 1. **Seasons**: spring (blossom petals), summer (current look), autumn (leaves, pumpkins), winter (snow, scarves, lights earlier). Each one changes the palette and adds particles and decorations.
 2. **Weather**: clear, light fog lifting, rain clearing to a rainbow (rare).
 3. **Seaside town** (if time allows): pier, lighthouse, boats, gulls, beach slots. About 15 of the stories are tagged to fit it.
 
-### Phase 7 — Release (Nov 15 – 16)
+### Phase 7 — Release (Nov 15 – 16) — release kit ready 2026-11-03 (see ITCH.md)
 
 1. Playtest 10+ evenings by hand; tune scoring thresholds, pacing curve and rarity.
 2. Test on a phone (touch, pinch, performance tier), Chrome, Firefox and Safari.

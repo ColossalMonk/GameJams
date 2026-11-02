@@ -53,8 +53,9 @@ const KIND_POINTS = { peak: 500, near: 160, after: 90, idle: 60 };
 
 /**
  * Score a photo from what was inside the viewfinder at the moment it was taken.
- * Returns { score, caption, kind, tags, people, sunInside, rare, legendary }; the extra fields are what
- * the evening's request checks.
+ * Returns { score, caption, kind, id, labels, tags, people, sunInside, rare, legendary }.
+ * labels are the short reasons shown under the photo in the album; tags, people and
+ * sunInside are what the evening's request checks; id is the main subject's moment.
  */
 export function scorePhoto({ t, rect, stage, cast }) {
   const camera = stage.camera;
@@ -86,7 +87,7 @@ export function scorePhoto({ t, rect, stage, cast }) {
     else if (m.rare) rare = true;
     if (kind === 'peak' || kind === 'after') for (const tag of m.tags) tags.add(tag);
     points += pts;
-    candidates.push({ pts, caption: m.caption(kind), kind });
+    candidates.push({ pts, caption: m.caption(kind), kind, framing, id: m.id });
   }
 
   const people = cast.people.filter((person) => coverage(screenBox(person.object, camera, w, h), f) >= 0.7).length;
@@ -124,10 +125,19 @@ export function scorePhoto({ t, rect, stage, cast }) {
   candidates.sort((a, b) => b.pts - a.pts);
   let caption = '…something happened here.';
   let kind = 'miss';
-  if (candidates.length) ({ caption, kind } = candidates[0]);
+  const best = candidates[0];
+  if (best) ({ caption, kind } = best);
   else if (sunInside || sunOverlaps) {
     caption = t > 15 ? 'The sun, filling the whole sky.' : 'The sun, closer than ever.';
     kind = 'sun';
   }
-  return { score, caption, kind, tags: [...tags], people, sunInside, rare, legendary };
+  const labels = [];
+  if (best?.kind === 'peak') labels.push('Peak');
+  if (best?.framing >= 0.9) labels.push('Tight framing');
+  if (tags.has('crossover')) labels.push('Crossover ×1.3');
+  if (legendary) labels.push('Legendary ×2');
+  else if (rare) labels.push('Rare ×1.5');
+  if (sunInside) labels.push('Sun');
+  if (t > 15) labels.push('Golden light');
+  return { score, caption, kind, id: best?.id ?? null, labels, tags: [...tags], people, sunInside, rare, legendary };
 }

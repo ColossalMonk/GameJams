@@ -12,7 +12,7 @@ import { scorePhoto } from './game/Scoring.js';
 import { HUD } from './ui/HUD.js';
 import { Album } from './ui/Album.js';
 import { Audio } from './audio/Audio.js';
-import { Evening, randomEveningNumber } from './game/Evening.js';
+import { Evening, randomEveningNumber, MAX_EVENING } from './game/Evening.js';
 import { pickRequest, REQUEST_BONUS } from './game/Requests.js';
 import { setSunX } from './world/Sky.js';
 import { GAME_LENGTH, SHOTS, FILM_ADVANCE, WHITEOUT_START, VIEWFINDER, PUPPET_FPS } from './config.js';
@@ -27,7 +27,13 @@ const town = new Town(stage.scene);
 const particles = new Particles(stage.scene);
 const audio = new Audio();
 const facades = new Facades(stage.scene, town.windowGlow);
-const show = new Show(stage.scene, particles, { onCue: (kind, m) => audio.cue(kind, m.x()) });
+const show = new Show(stage.scene, particles, {
+  onCue: (kind, m) => {
+    audio.cue(kind, m.x());
+    if (kind === 'build' && state === 'playing') sparkle(m);
+  },
+  onSfx: (name, x) => audio.sfx(name, x),
+});
 const hud = new HUD();
 const album = new Album();
 const viewfinder = new Viewfinder(app, document.getElementById('viewfinder'), { onShoot: requestShot });
@@ -90,6 +96,18 @@ function popUp(u) {
 }
 
 /** mode: 'current' (from the title), 'new' or 'same' (from the album). */
+/** A small burst of gold sparks over a story that's about to peak: where to look. */
+const hintBox = new THREE.Box3();
+function sparkle(m) {
+  hintBox.makeEmpty();
+  for (const o of m.focus()) hintBox.expandByObject(o);
+  if (hintBox.isEmpty()) return;
+  const top = new THREE.Vector3((hintBox.min.x + hintBox.max.x) / 2, hintBox.max.y + 0.25, hintBox.max.z + 0.1);
+  for (let i = 0; i < 6; i++) {
+    particles.spawn('spark', top, new THREE.Vector3((Math.random() - 0.5) * 1.4, 1.2 + Math.random() * 0.8, 0), { life: 0.9, scale: 1.3, color: '#fff1b0' });
+  }
+}
+
 function begin(mode = 'current') {
   if (state === 'playing' || state === 'opening') return;
   audio.start();
@@ -162,11 +180,32 @@ function takePhoto(rect) {
   photos.push({ dataUrl, ...result, t });
   hud.shot(photos.length - 1, dataUrl);
   audio.shutter();
+  if (result.kind === 'peak') audio.addLayer();
   lockedUntil = t + FILM_ADVANCE;
   if (!requestDone && request.test(photos)) {
     requestDone = true;
     hud.requestDone();
   }
+}
+
+/**
+ * The evening in a line for the album ("You caught 3 of tonight's 9 stories at their peak.
+ * You missed a rare one: “A balloon, crossing the sun.”") and a spoiler-free share line.
+ */
+function summarise(total) {
+  const stories = show.moments.filter((m) => m.instance);
+  const shotAt = (kind) => new Set(photos.filter((p) => p.id && (!kind || p.kind === kind)).map((p) => p.id));
+  const peaked = shotAt('peak');
+  const seen = shotAt();
+  const caught = stories.filter((m) => peaked.has(m.id)).length;
+  let epilogue = `You caught ${caught} of tonight's ${stories.length} stories at their peak.`;
+  const missed = stories.find((m) => m.rarity === 'legendary' && !seen.has(m.id)) || stories.find((m) => m.rare && !seen.has(m.id));
+  if (missed) {
+    epilogue += ` You missed a rare one: “${missed.caption('peak')}”`;
+  }
+  const marks = photos.map((p) => (!p.dataUrl ? '⬜' : p.legendary ? '🌟' : p.rare ? '✨' : p.kind === 'peak' ? '📸' : '🖼️')).join('');
+  const share = `Golden Hour · Evening No. ${evening.number} · ${total.toLocaleString()} · ${marks}`;
+  return { epilogue, share };
 }
 
 function endRun() {
@@ -177,7 +216,7 @@ function endRun() {
   const bonus = fulfilled ? REQUEST_BONUS : 0;
   while (photos.length < SHOTS) photos.push({ dataUrl: null, caption: 'You were too busy watching.', score: 0 });
   const total = photos.reduce((sum, p) => sum + p.score, 0) + bonus;
-  const night = { evening: evening.number, request: request.text, fulfilled, bonus };
+  const night = { evening: evening.number, request: request.text, fulfilled, bonus, ...summarise(total) };
   albumAt = wall + 0.7;
   setTimeout(() => {
     album.show(photos, total, night);
@@ -185,8 +224,29 @@ function endRun() {
   }, 700);
 }
 
+/** Everyone gets the same evening on the same day. */
+function todaysEvening() {
+  const d = new Date();
+  let h = 2166136261;
+  for (const c of `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return 1 + ((h >>> 0) % MAX_EVENING);
+}
+
+/** Switch the title screen to another evening, popping the new town up. */
+function chooseEvening(number) {
+  if (state !== 'title' || !(number >= 1 && number <= MAX_EVENING)) return;
+  prepareEvening(Math.round(number));
+  popUp(0);
+  opening = { at: wall, then: null };
+}
+
 // ── Input outside the viewfinder ──
 document.getElementById('title').addEventListener('click', () => begin('current'));
+for (const el of document.querySelectorAll('.pick-evening, .pick-evening *')) el.addEventListener('click', (e) => e.stopPropagation());
+document.getElementById('today').addEventListener('click', () => chooseEvening(todaysEvening()));
+const numberInput = document.getElementById('evening-number');
+numberInput.addEventListener('change', () => chooseEvening(Number(numberInput.value)));
+numberInput.addEventListener('keydown', (e) => e.stopPropagation());
 for (const [id, mode] of [['again', 'new'], ['same', 'same']]) {
   document.getElementById(id).addEventListener('click', (e) => {
     e.stopPropagation();
@@ -240,6 +300,7 @@ const STEP = 1 / PUPPET_FPS;
 let lastStep = -1;
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.1);
+  viewfinder.update(dt);
   trackAim(dt);
   wall += dt;
   if (state === 'playing') t = Math.min(GAME_LENGTH, t + dt);
@@ -288,4 +349,4 @@ requestAnimationFrame(frame);
 app.classList.add('menu');
 
 // Debug hook for development.
-window.__golden = { stage, show, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };
+window.__golden = { stage, show, audio, viewfinder, requestShot, get photos() { return photos; }, get evening() { return evening; }, get request() { return request; }, get t() { return t; }, set t(v) { t = v; } };

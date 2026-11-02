@@ -219,6 +219,25 @@ canvas { display: block; }
 }
 #title .tonight strong { color: var(--accent); font-weight: 600; }
 
+#title .pick-evening {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+#title .pick-evening button { font-size: 14px; padding: 5px 14px; }
+#title .pick-evening input {
+  width: 70px;
+  font: inherit;
+  padding: 4px 6px;
+  border: 1px solid rgba(47, 37, 48, 0.25);
+  border-radius: 6px;
+  background: #fff;
+}
+
 #title .hint {
   margin: 0 0 20px;
   font-size: 14px;
@@ -375,6 +394,31 @@ kbd {
   font-family: var(--hand);
   font-size: 20px;
   line-height: 1.05;
+}
+
+.polaroid .labels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 4px;
+}
+.polaroid .labels span {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(47, 37, 48, 0.07);
+}
+
+#album-epilogue {
+  margin: -14px auto 20px;
+  max-width: 560px;
+  font-family: var(--hand);
+  font-size: 21px;
+  line-height: 1.15;
+  opacity: 0;
+  animation: fade-up 0.8s 0.9s forwards;
 }
 
 .polaroid .score {

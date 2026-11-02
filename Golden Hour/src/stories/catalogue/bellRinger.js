@@ -8,6 +8,8 @@ const FLYERS = 6;
 /** How many pigeons go and sit on the apartment roof when someone is up there tonight. */
 const ROOSTERS = 4;
 const ROOST_FLIGHT = 2.0;
+/** Stories that keep someone on the apartment roof for the whole evening. */
+const ROOFTOP_STORIES = ['rooftopKiss', 'laundry', 'lanterns', 'stargazer', 'painter', 'doves'];
 
 /** Allowed to ring the church bell at last: the pigeons scatter, or the rope gives way. */
 export default defineStory({
@@ -78,7 +80,7 @@ export default defineStory({
     }
 
     // Chain: if a rooftop story is on tonight, the first few pigeons fly over and sit with them.
-    const roosting = !snap && (tonight.includes('rooftopKiss') || tonight.includes('laundry'));
+    const roosting = !snap && ROOFTOP_STORIES.some((id) => tonight.includes(id));
     const roosters = [];
     if (roosting) {
       const A = LAYOUT.apartment;

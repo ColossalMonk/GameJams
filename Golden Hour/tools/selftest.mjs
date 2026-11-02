@@ -122,6 +122,23 @@ for (const story of stories) {
   }
 }
 
+// ── 1a. Sound table: every entry names a real story, outcome and effect ──
+if (!batch) {
+  const { STORY_SOUNDS } = await import('../src/stories/sounds.js');
+  const { SFX_NAMES } = await import('../src/stories/Story.js');
+  const ALL_STORIES = (await import('../src/stories/registry.js')).STORIES;
+  for (const [id, row] of Object.entries(STORY_SOUNDS)) {
+    const story = ALL_STORIES.find((s) => s.id === id);
+    if (!story) fail(`sounds.js: no story "${id}"`);
+    for (const [outcome, cues] of Object.entries(row)) {
+      if (story && outcome !== 'all' && !story.outcomes[outcome]) fail(`sounds.js: ${id} has no outcome "${outcome}"`);
+      for (const [p, name] of cues) if (typeof p !== 'number' || !SFX_NAMES.includes(name)) fail(`sounds.js: ${id}/${outcome} bad cue [${p}, "${name}"]`);
+    }
+  }
+  const silent = ALL_STORIES.filter((s) => Object.keys(s.outcomes).every((o) => !s.outcomes[o].sounds.length) && !STORY_SOUNDS[s.id]).map((s) => s.id);
+  if (silent.length) console.log(`\nStories with no sounds yet: ${silent.join(', ')}`);
+}
+
 // ── 1b. Crossovers: every throwing outcome onto every kind of target it can take ──
 const TARGET_FOR = { hand: 'musician', head: 'proposal', mouth: 'frisbee' };
 const throwers = stories.flatMap((s) => Object.entries(s.outcomes).filter(([, o]) => o.throws).map(([name, o]) => ({ story: s, outcome: name, throws: o.throws })));

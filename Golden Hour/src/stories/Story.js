@@ -10,12 +10,14 @@
  *     dur: 0.8,                    // how long the peak lasts
  *     cast: { ada: { kid: true } },// roles, filled by tonight's residents
  *     tags: ['wheels'],            // optional: added to every outcome's tags
+ *     sounds: [[-1.2, 'sputter'], [0, 'engine']],  // optional: sound effects at these p (see audio/sfx.js)
  *     outcomes: {
  *       main: { weight: 2, tags: ['air'], captions: { peak, near, after, idle } },
  *       alt:  { weight: 1, tags: ['oops'], captions: { … },
  *               // optional: this outcome throws something that can land in another story.
  *               // lands: seconds after the peak; kinds: 'hand' | 'head' | 'mouth'.
- *               throws: { lands: 1.3, kinds: ['head'], caption: '{target} has a new hat.' } },
+ *               throws: { lands: 1.3, kinds: ['head'], caption: '{target} has a new hat.' },
+ *               sounds: [[0, 'crash']] },  // optional: replaces the story's sounds for this outcome
  *     },
  *     create(ctx) {                // build meshes once per evening; ctx.tonight lists tonight's story ids
  *       return {
@@ -36,6 +38,16 @@
  * prop at ctx.cross.point() afterwards.
  */
 
+/** Sound effects stories can ask for, by name. Synthesised in audio/sfx.js. */
+export const SFX_NAMES = [
+  'bark', 'meow', 'coo', 'flap', 'quack',
+  'sputter', 'engine', 'honk', 'siren', 'jingle', 'whistle', 'brakes',
+  'pop', 'cork', 'clink', 'splash', 'splat', 'crash', 'thud', 'tear', 'whoosh', 'swish',
+  'bell', 'chime', 'ding', 'plink', 'strum', 'drum', 'trumpet', 'kazoo', 'tada',
+  'cheer', 'aww', 'gasp', 'laugh',
+  'firework', 'camera', 'ufo', 'whale',
+];
+
 export const RARITY_CHANCE = { common: 1, rare: 0.3, legendary: 0.03 };
 
 const KINDS = ['peak', 'near', 'after', 'idle'];
@@ -54,6 +66,8 @@ export function defineStory(def) {
     for (const k of KINDS) if (typeof o.captions?.[k] !== 'string') fail(`outcome "${name}" is missing captions.${k}`);
     o.weight ??= name === 'main' ? 2 : 1;
     o.tags = [...new Set([...(o.tags ?? []), ...(def.tags ?? [])])];
+    o.sounds ??= def.sounds ?? [];
+    for (const [p, sfx] of o.sounds) if (typeof p !== 'number' || !SFX_NAMES.includes(sfx)) fail(`outcome "${name}" has a bad sound [${p}, "${sfx}"]`);
     if (o.throws) {
       const t = o.throws;
       if (!(t.lands > 0) || !t.kinds?.length || typeof t.caption !== 'string') fail(`outcome "${name}" throws needs lands, kinds and caption`);

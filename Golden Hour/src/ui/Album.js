@@ -22,6 +22,10 @@ export class Album {
     this.totalEl = document.getElementById('album-total');
     this.eveningEl = document.getElementById('album-evening');
     this.requestEl = document.getElementById('album-request');
+    this.epilogueEl = document.getElementById('album-epilogue');
+    this.shareButton = document.getElementById('share');
+    this.shareText = '';
+    this.shareButton.addEventListener('click', () => this.share());
     this.grid = document.getElementById('polaroids');
     this.photos = [];
     this.total = 0;
@@ -29,8 +33,11 @@ export class Album {
     document.getElementById('save').addEventListener('click', () => this.save());
   }
 
-  /** night: { evening, request, fulfilled, bonus } */
+  /** night: { evening, request, fulfilled, bonus, epilogue, share } */
   show(photos, total, night) {
+    this.shareText = night.share;
+    this.shareButton.textContent = 'Copy result';
+    this.epilogueEl.textContent = night.epilogue;
     this.photos = photos;
     this.total = total;
     this.evening = night.evening;
@@ -63,7 +70,14 @@ export class Album {
         const score = document.createElement('div');
         score.className = 'score';
         score.textContent = photo.dataUrl ? `${photo.score}` : '';
-        card.append(frame, caption, score);
+        const labels = document.createElement('div');
+        labels.className = 'labels';
+        for (const text of photo.labels ?? []) {
+          const chip = document.createElement('span');
+          chip.textContent = text;
+          labels.append(chip);
+        }
+        card.append(frame, caption, score, labels);
         if (photo.legendary || photo.rare) {
           const sticker = document.createElement('span');
           sticker.className = photo.legendary ? 'sticker legendary' : 'sticker';
@@ -75,6 +89,18 @@ export class Album {
     );
     this.el.classList.remove('hidden');
     this.el.scrollTop = 0;
+  }
+
+  /** Copy a short, spoiler-free result line, for sharing a score on an evening. */
+  async share() {
+    try {
+      await navigator.clipboard.writeText(this.shareText);
+    } catch {
+      // Clipboard can be blocked inside the itch.io frame: fall back to a selectable prompt.
+      window.prompt('Copy your result:', this.shareText);
+      return;
+    }
+    this.shareButton.textContent = 'Copied ✓';
   }
 
   hide() {

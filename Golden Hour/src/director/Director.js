@@ -58,7 +58,10 @@ export function planEvening(evening, { stories, slots, place = 'elm', only = nul
       // In stress mode (performance testing) stories may share slots.
       const free = slots.filter((sl) => sl.type === type && (stress || (!used.has(sl.id) && !taken.includes(sl))));
       if (!free.length) break;
-      taken.push(evening.pick(free));
+      // A story that needs two places (a window and the pavement below it) gets the
+      // second one nearest the first, so its two halves stay close on screen.
+      const near = taken.length ? free.reduce((b, sl) => (Math.abs(sl.x - taken[0].x) < Math.abs(b.x - taken[0].x) ? sl : b)) : null;
+      taken.push(near || evening.pick(free));
     }
     if (taken.length !== story.slots.length) continue;
     for (const sl of taken) used.add(sl.id);

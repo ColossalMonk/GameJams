@@ -6,15 +6,19 @@ Entry for the [20 Second Game Jam 2026](https://itch.io/jam/20-second-game-jam-2
 
 - Move the viewfinder with the mouse (drag on touch screens). Scroll or pinch to zoom.
 - Click (or tap, or press Space) to take a photo. You have five.
+- Arrow keys or WASD aim with the keyboard; Q and E zoom.
 - Each evening 8–10 stories happen around town, each with one big moment at a random time. A soft chime from that side of the screen tells you something is about to happen.
 - A photo scores more for catching a moment at its peak, for framing it tightly, for including the sun, and for being taken later, when the light is better.
-- At 20 seconds the screen whites out and your photos come back as an album with captions. Space starts a new evening.
+- A chime from that side of the screen and a little gold sparkle mean a story is about to peak.
+- Every story has its own sounds, and every peak you photograph adds a layer to the music: bells, then strings, then a choir.
+- At 20 seconds the screen whites out and your photos come back as an album. Each photo has a caption and labels saying why it scored. A line sums up the evening, including any rare story you missed. Space starts a new evening; **Copy result** copies a spoiler-free share line.
+- On the title card, **Today's evening** gives everyone the same evening each day, and you can type in any evening number.
 
 ## Every evening is different
 
 Each run is a numbered evening (1–9999), and the number seeds everything that changes:
 
-- **which stories happen, and where.** The director picks 8–10 of the 30 stories in the catalogue and gives each one a free spot in town (rooftop, road, windows, building site, church tower, horizon, sky, pavement …).
+- **which stories happen, and where.** The director picks 8–10 of the 57 stories in the catalogue and gives each one a free spot in town (rooftop, road, windows, building site, church tower, horizon, sky, pavement …).
 - **who is in them.** Townspeople are generated each evening (look and name), and captions use their names.
 - **the street.** The row of houses behind the café is rebuilt each evening, and becomes a building site with a tower crane when a site story is on.
 - **how each story ends.** Every story has 2–3 outcomes: the dog misses, the car backfires, the piano drops, the yoga class topples, the cheese wins …
@@ -30,13 +34,14 @@ Each run is a numbered evening (1–9999), and the number seeds everything that 
 
 | Where | Stories |
 |---|---|
-| Pavement | musician · proposal · magician · balloon seller · lost balloon |
-| Road and kerb | ice-cream van · bus · fire truck (with a window) · old car |
-| Rooftop, windows, tower | rooftop kiss · laundry · opera singer · bell ringer |
-| Café, church, wall | birthday · wedding · cat |
-| Park and hill | frisbee dog · yoga · kite · cheese rolling |
+| Pavement | musician · proposal · magician · balloon seller · lost balloon · mail carrier · library book · toddler's first steps · juggler · breakdancer · gulls and chips |
+| Road and kerb | ice-cream van · bus · fire truck · wedding car · moving van · ducks crossing · marching band (rare) · old car |
+| Rooftop | rooftop kiss · laundry · sky lanterns · stargazer · painter · doves |
+| Windows and tower | opera singer · serenade · escaping parrot · watering plants · bell ringer |
+| Café, church, wall | birthday · champagne toast · 30-year chess game · waiter's plate tower · wedding · cat |
+| Park and hill | frisbee dog · yoga · dog walker · tug of war · kite · cheese rolling · sledding · paraglider |
 | Building site | crane lifts a piano · lunch on a beam · last-beam flag |
-| Sky and horizon | banner plane · train on the viaduct · balloon (rare) · paper plane (rare) · fireworks (rare) · UFO (legendary) · whale cloud (legendary) |
+| Sky and horizon | banner plane · cranes · train on the viaduct · skywriter (rare) · parachutist (rare) · balloon (rare) · paper plane (rare) · fireworks (rare) · UFO (legendary) · whale cloud (legendary) |
 
 The album shows the evening number. "Same evening again" replays it so you can try to get a better album. Adding `?evening=123` to the URL loads a specific evening.
 
@@ -61,7 +66,8 @@ The album shows the evening number. "Same evening again" replays it so you can t
 - `src/game/Requests.js`: tonight's request and how to check it
 - `src/game/Scoring.js`: what was in frame, how well, and the caption
 - `src/ui/HUD.js`, `src/ui/Album.js`: film counter, photo tray, whiteout, album and PNG export
-- `src/audio/Audio.js`: Tone.js pad, chimes for each moment, shutter
+- `src/audio/Audio.js`: Tone.js pad, chimes for each moment, shutter, music layers
+- `src/audio/sfx.js`: the 39 synthesised story sound effects; `src/stories/sounds.js` cues them for the earlier stories
 - `src/tools/gallery.js` and `tools/selftest.mjs`: development tools (below)
 
 ## Running
@@ -86,7 +92,7 @@ npm run dev
 - **Self-test:** `node tools/selftest.mjs` runs headless in Node. It plays every story and outcome to its peak, frames it like a player and checks it scores as a peak with the right caption. It does the same for every crossover and chain event. Then it plans and plays 300 evenings, looking for crashes, slot clashes and peaks too close together, and reports how many evenings have a crossover. `node tools/selftest.mjs crane` checks one story.
 - **Find an evening:** `node tools/find-evening.mjs crossover` (or a story id such as `ufo`) lists evening numbers that have one, to open with `?evening=N`.
 
-`npm run build` writes `dist/`. Zip the contents of `dist/` and upload it to itch.io as an HTML game.
+`npm run build` writes `dist/`. `tools\package-itch.ps1` builds and writes `golden-hour-itch.zip` for itch.io. [ITCH.md](ITCH.md) has the full release steps, the page text and the generative-AI disclosure.
 
 ## Jam notes
 

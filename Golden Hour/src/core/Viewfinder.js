@@ -2,10 +2,16 @@ import { VIEWFINDER } from '../config.js';
 
 const TAP_SLOP = 12;
 
+/** Keyboard aiming speed, in screen heights per second. */
+const KEY_SPEED = 0.9;
+const AIM_KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1], KeyA: [-1, 0], KeyD: [1, 0], KeyW: [0, -1], KeyS: [0, 1] };
+const ZOOM_KEYS = { KeyQ: 1, Minus: 1, KeyE: -1, Equal: -1 };
+
 /**
  * The square viewfinder that follows the pointer.
  * Mouse: move to aim, click to shoot, wheel to zoom.
  * Touch: drag to aim, pinch to zoom, tap to shoot where you tapped.
+ * Keyboard: arrows or WASD to aim, Q/E (or -/=) to zoom; Space shoots (see main.js).
  */
 export class Viewfinder {
   constructor(container, el, { onShoot }) {
@@ -26,6 +32,15 @@ export class Viewfinder {
     container.addEventListener('pointercancel', (e) => this.touches.delete(e.pointerId));
     container.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
     window.addEventListener('resize', () => this.render());
+    this.keys = new Set();
+    window.addEventListener('keydown', (e) => {
+      if (AIM_KEYS[e.code] || ZOOM_KEYS[e.code]) {
+        this.keys.add(e.code);
+        if (this.enabled) e.preventDefault();
+      }
+    });
+    window.addEventListener('keyup', (e) => this.keys.delete(e.code));
+    window.addEventListener('blur', () => this.keys.clear());
     this.render();
   }
 
@@ -48,6 +63,28 @@ export class Viewfinder {
   /** Pointer x in [-1, 1], for camera parallax. */
   get nx() {
     return (this.cx / this.width) * 2 - 1;
+  }
+
+  /** Held keys move and zoom the viewfinder; called every frame. */
+  update(dt) {
+    if (!this.enabled || !this.keys.size) return;
+    let dx = 0;
+    let dy = 0;
+    let dz = 0;
+    for (const k of this.keys) {
+      if (AIM_KEYS[k]) {
+        dx += AIM_KEYS[k][0];
+        dy += AIM_KEYS[k][1];
+      }
+      dz += ZOOM_KEYS[k] ?? 0;
+    }
+    const step = KEY_SPEED * this.height * dt;
+    if (dx || dy) {
+      // Start from where the frame actually is, so held keys don't push it off screen.
+      const r = this.rect;
+      this.aim(r.x + r.size / 2 + dx * step, r.y + r.size / 2 + dy * step);
+    }
+    if (dz) this.zoomBy(Math.exp(dz * dt * 1.6));
   }
 
   zoomBy(factor) {

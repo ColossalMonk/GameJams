@@ -3,6 +3,7 @@ import { Puppet } from '../characters/Puppet.js';
 import { Dog, Cat } from '../characters/Animals.js';
 import { Residents } from '../people/Residents.js';
 import { fillCaption } from './Story.js';
+import { soundsFor } from './sounds.js';
 import { seg, smooth, lerp } from './anim.js';
 import { GROUP_WAVE } from '../config.js';
 
@@ -26,10 +27,11 @@ const TAKES = { person: ['hand', 'head'], dog: ['mouth'], cat: ['head'] };
  * becomes a moment of its own.
  */
 export class Show {
-  constructor(scene, particles, { onCue = () => {} } = {}) {
+  constructor(scene, particles, { onCue = () => {}, onSfx = () => {} } = {}) {
     this.scene = scene;
     this.particles = particles;
     this.onCue = onCue;
+    this.onSfx = onSfx;
     this.group = null;
     this.moments = [];
     this.people = [];
@@ -126,6 +128,7 @@ export class Show {
         focus: instance.focus,
         visible: instance.visible,
         x: instance.x || (() => slots[0].x),
+        sounds: soundsFor(story, outcome).map(([p, name]) => ({ p, name, played: false })),
       });
       for (const def of extras) {
         this.addMoment({
@@ -162,7 +165,10 @@ export class Show {
         target: tg,
         point: (v = new THREE.Vector3()) => landingPoint(tg, k, v),
         land: () => {
-          if (cross.landedAt == null) cross.landedAt = this.t;
+          if (cross.landedAt != null) return;
+          cross.landedAt = this.t;
+          this.onSfx('pop', tg.object.position.x);
+          this.onSfx('laugh', tg.object.position.x);
         },
       });
       this.crossovers.push(cross);
@@ -218,6 +224,13 @@ export class Show {
         this.onCue('peak', m);
       }
       m.instance?.update(p, { wall, dt, outcome: m.variant });
+      for (const s of m.sounds ?? []) {
+        if (!s.played && p >= s.p) {
+          s.played = true;
+          // Cues long past (e.g. after a skip ahead) stay silent rather than all firing at once.
+          if (p - s.p < 0.5) this.onSfx(s.name, m.x());
+        }
+      }
     }
     this.reactions(t, wall);
     this.groupWave(t, wall);

@@ -18,6 +18,10 @@ import batchA from './catalogue/index-a.js';
 import batchB from './catalogue/index-b.js';
 import batchC from './catalogue/index-c.js';
 import batchD from './catalogue/index-d.js';
+import batchE from './catalogue/index-e.js';
+import batchF from './catalogue/index-f.js';
+import batchG from './catalogue/index-g.js';
+import batchH from './catalogue/index-h.js';
 
 export const STORIES = [
   cat,
@@ -36,6 +40,10 @@ export const STORIES = [
   ...batchB,
   ...batchC,
   ...batchD,
+  ...batchE,
+  ...batchF,
+  ...batchG,
+  ...batchH,
 ];
 
 const ids = new Set();

@@ -28,7 +28,11 @@
         <h1>Golden Hour</h1>
         <p class="lede">The sun is swelling. Nobody minds.<br />You have five shots left.</p>
         <p class="tonight" id="title-request"></p>
-        <p class="hint" id="hint">aim · scroll to zoom · click to shoot</p>
+        <div class="pick-evening">
+          <button id="today" type="button" class="quiet">Today's evening</button>
+          <label>or No. <input id="evening-number" type="number" min="1" max="9999" inputmode="numeric" placeholder="1–9999" /></label>
+        </div>
+        <p class="hint" id="hint">aim with the mouse or arrow keys · scroll or Q/E to zoom · click or Space to shoot</p>
         <button id="begin" type="button">Begin</button>
       </div>
     </div>
@@ -39,11 +43,13 @@
         <h2 id="album-title"></h2>
         <p id="album-total"></p>
         <p id="album-request"></p>
+        <p id="album-epilogue"></p>
         <div id="polaroids"></div>
         <div class="buttons">
           <button id="again" type="button">New evening <kbd>Space</kbd></button>
           <button id="same" type="button" class="quiet">Same evening again</button>
           <button id="save" type="button" class="quiet">Save album</button>
+          <button id="share" type="button" class="quiet">Copy result</button>
         </div>
       </div>
     </div>
