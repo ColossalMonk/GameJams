@@ -78,7 +78,8 @@ The album shows the evening's number, but players can't choose or replay evening
 - `src/game/Journal.js`: the cosmetic journal of caught endings, kept in localStorage
 - `src/audio/Audio.js`: Tone.js pad, chimes for each moment, shutter, music layers
 - `src/audio/sfx.js`: the 39 synthesised story sound effects; `src/stories/sounds.js` cues them for the earlier stories
-- `src/tools/gallery.js` and `tools/selftest.mjs`: development tools (below)
+- `src/tools/gallery.js`, `src/tools/press.js` and `tools/selftest.mjs`: development tools (below)
+- `press/`: the itch.io cover, screenshots, GIF and banner; `public/favicon.svg`: the tab icon
 
 ## Running
 
@@ -100,6 +101,7 @@ npm run dev
 
 - **Story gallery:** open the dev server with `?story=crane` (or `?story=kite&outcome=alt&peak=6`). It plays one story on its own, with a time slider, an outcome picker and the box scoring uses. Keys: Space play/pause, `[` `]` previous/next story, `o` next outcome, `r` restart.
 - **Self-test:** `node tools/selftest.mjs` runs headless in Node. It plays every story and outcome to its peak, frames it like a player and checks it scores as a peak with the right caption. It does the same for every crossover and chain event. Then it plans and plays 300 evenings, looking for crashes, slot clashes and peaks too close together, and reports how many evenings have a crossover. `node tools/selftest.mjs crane` checks one story.
+- **Press kit:** open the dev server with `?press=1` to render the itch cover, screenshots, banner and GIF frames from real evenings into `press/` (see `src/tools/press.js` and [ITCH.md](ITCH.md)).
 - **Find an evening:** `node tools/find-evening.mjs crossover` (or a story id such as `ufo`) lists evening numbers that have one, to open with `?evening=N` on the dev server.
 
 `npm run build` writes `dist/`. `tools\package-itch.ps1` builds and writes `golden-hour-itch.zip` for itch.io. [ITCH.md](ITCH.md) has the full release steps, the page text and the generative-AI disclosure.

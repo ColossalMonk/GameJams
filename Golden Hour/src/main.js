@@ -303,7 +303,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 const firstEvening = Number(params.get('evening')) || randomEveningNumber();
-if (params.has('story')) {
+if (DEV && params.has('story')) {
   // Gallery tool: ?story=kite[,crane]&outcome=alt&peak=6
   state = 'gallery';
   const gallery = {
@@ -324,7 +324,24 @@ if (params.has('story')) {
       setTime: (v) => (t = v),
     }),
   );
-} else if (params.has('all')) {
+} else if (DEV && params.has('press')) {
+  // Press kit: renders the itch cover, screenshots and banner into press/ (see src/tools/press.js).
+  state = 'press';
+  prepareEvening(firstEvening);
+  import('./tools/press.js').then(({ startPress }) =>
+    startPress({
+      stage,
+      show,
+      album,
+      particles,
+      prepare: (n) => prepareEvening(n),
+      evening: () => evening,
+      setTime: (v) => (t = v),
+      develop,
+      scorePhoto,
+    }),
+  );
+} else if (DEV && params.has('all')) {
   // Stress test: every story at once, sharing slots. Not a real evening.
   prepareEvening(firstEvening, { only: STORIES.map((s) => s.id), stress: true });
 } else {

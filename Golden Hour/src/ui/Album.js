@@ -172,6 +172,18 @@ export class Album {
 
   /** Download the album as one PNG, for sharing. */
   async save() {
+    const canvas = await this.image();
+    canvas.toBlob((blob) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'golden-hour-album.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    });
+  }
+
+  /** The album drawn on one canvas (also used by the press tool). */
+  async image() {
     await document.fonts.ready;
     const card = 280;
     const pad = 40;
@@ -224,14 +236,7 @@ export class Album {
     ctx.fillStyle = 'rgba(47,37,48,0.45)';
     ctx.font = '500 20px Fraunces, Georgia, serif';
     ctx.fillText(`Golden Hour · Evening No. ${this.evening} · #20SecondGameJam`, width / 2, height - 24);
-
-    canvas.toBlob((blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'golden-hour-album.png';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    });
+    return canvas;
   }
 }
 
